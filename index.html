@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Global Release Calendar v9 (Ultimate)</title>
+    <title>Global Release Calendar v11 (Fixed)</title>
 
     <!-- 1. EXTERNAL LIBRARIES -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,13 +20,12 @@
                         glassBorder: 'rgba(255, 255, 255, 0.08)'
                     },
                     animation: { 
-                        'slide-in': 'slideIn 0.3s ease-out forwards',
-                        'aurora': 'aurora 20s linear infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-glow': 'pulseGlow 3s infinite'
                     },
                     keyframes: {
-                        slideIn: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(0)' } },
-                        aurora: { '0%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' }, '100%': { backgroundPosition: '0% 50%' } }
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        pulseGlow: { '0%, 100%': { opacity: '1', boxShadow: '0 0 10px rgba(59, 130, 246, 0.2)' }, '50%': { opacity: '0.7', boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' } }
                     }
                 }
             }
@@ -36,264 +35,200 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
+        :root { --app-bg: #020617; --fc-border-color: rgba(255,255,255,0.05); }
+        
         body { 
-            background-color: #020617; 
+            background-color: var(--app-bg); 
             background-image: 
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(244, 63, 94, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
-            background-attachment: fixed;
+                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.08), transparent 25%), 
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%);
             color: #e2e8f0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; 
         }
         
-        /* Premium Glass UI */
+        /* GLASS UI */
         .glass-panel {
             background: var(--glass); 
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glassBorder); 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
+        .glass-button {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+        }
+        .glass-button:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.1); }
 
-        /* --- CALENDAR STYLES --- */
-        .fc { --fc-border-color: rgba(255,255,255,0.05); --fc-page-bg-color: transparent; }
-        .fc-theme-standard td, .fc-theme-standard th { border-color: rgba(255,255,255,0.08) !important; }
+        /* CALENDAR */
+        .fc { --fc-page-bg-color: transparent; --fc-neutral-bg-color: rgba(255,255,255,0.02); }
+        .fc-theme-standard td, .fc-theme-standard th { border-color: var(--fc-border-color) !important; }
         .fc-col-header-cell-cushion { color: #94a3b8; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; padding: 12px 0 !important; }
-        .fc-daygrid-day-number { color: #64748b; font-weight: 600; font-size: 0.8rem; padding: 4px; }
-        .fc-day-today { background: rgba(255, 255, 255, 0.03) !important; }
-        
-        /* MultiMonth Year Title */
-        .fc-multimonth-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; color: #fff; margin-bottom: 8px; letter-spacing: 1px; }
+        .fc-daygrid-day-number { color: #64748b; font-weight: 600; font-size: 0.8rem; padding: 6px; }
+        .fc-multimonth-title { font-size: 0.85rem; font-weight: 800; letter-spacing: 1px; color: #fff; margin-bottom: 10px; }
         .fc-multimonth-daygrid-table { background: rgba(0,0,0,0.2) !important; border-radius: 8px; overflow: hidden; }
 
-        /* --- EVENT POSTERS (The Tile Look) --- */
+        /* EVENTS */
         .fc-event {
-            border: none !important;
-            border-radius: 4px;
-            margin: 2px !important;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            cursor: pointer;
-            position: relative;
-            background-color: var(--fc-event-bg-color);
-            min-height: 28px; /* Force height for visibility */
+            border: none !important; border-radius: 4px; margin: 2px !important;
+            transition: all 0.2s; overflow: hidden; cursor: pointer; position: relative;
+            background-color: var(--fc-event-bg-color); min-height: 26px;
         }
-        
-        .event-poster-bg {
-            position: absolute; inset: 0; 
-            background-size: cover; background-position: center; 
-            opacity: 0.7; z-index: 0;
-            transition: transform 0.3s;
-        }
-        
-        /* Fallback Gradient if no image */
-        .event-poster-fallback {
-            position: absolute; inset: 0; z-index: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-        }
+        .event-poster-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.75; z-index: 0; }
+        .event-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.2)); z-index: 1; }
+        .event-content { position: relative; z-index: 2; padding: 3px 5px; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+        .fc-event:hover { z-index: 50; transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .hype-event { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.6); }
 
-        .event-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.1) 100%);
-            z-index: 1;
-        }
-
-        .event-content {
-            position: relative; z-index: 2;
-            padding: 4px 6px;
-            display: flex; flex-direction: column; justify-content: flex-end;
-            height: 100%;
-        }
-        
-        .fc-event:hover { z-index: 50; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transform: translateY(-3px) scale(1.02); }
-        .fc-event:hover .event-poster-bg { transform: scale(1.1); opacity: 0.5; }
-
-        /* Hype Animation */
-        .hype-event { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.5), 0 0 10px rgba(245, 158, 11, 0.2); }
-        .hype-event .event-overlay { background: linear-gradient(to top, rgba(245, 158, 11, 0.15), rgba(0,0,0,0)); }
-
-        /* Countdown Widget */
-        .countdown-digit { 
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 6px; padding: 6px 4px; text-align: center; flex: 1;
-        }
-        .countdown-val { font-size: 1.2rem; font-weight: 800; display: block; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .countdown-label { font-size: 0.5rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-top: 2px; }
-
-        /* Selection Mode */
+        /* UTILS */
+        .fc-event.dimmed { opacity: 0.1; filter: grayscale(1); pointer-events: none; }
         .selection-mode .fc-event { filter: grayscale(1) opacity(0.3); pointer-events: none; }
-        .selection-mode .fc-event.selected-event { filter: grayscale(0) opacity(1); box-shadow: 0 0 0 2px #fff, 0 0 15px rgba(59, 130, 246, 0.6); transform: scale(0.95); pointer-events: auto; }
-
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .selection-mode .fc-event.selected-event { filter: grayscale(0) opacity(1); box-shadow: 0 0 0 2px #fff; transform: scale(0.95); pointer-events: auto; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden text-sm">
+<body class="h-screen flex flex-col overflow-hidden text-sm selection:bg-blue-500/30">
 
-    <!-- TOAST NOTIFICATIONS -->
+    <!-- TOAST CONTAINER -->
     <div id="toastContainer" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- NAVIGATION -->
-    <nav class="h-16 border-b border-gray-800 flex items-center justify-between px-4 md:px-6 bg-[#020617]/80 backdrop-blur z-40 relative shadow-2xl">
+    <!-- NAVBAR -->
+    <nav class="h-14 border-b border-gray-800 flex items-center justify-between px-4 md:px-6 bg-[#020617]/90 backdrop-blur-md z-50 relative">
         <div class="flex items-center gap-4">
-            <button onclick="toggleMobileSidebar()" class="md:hidden text-gray-300 hover:text-white p-2 transition">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-rocket text-white text-sm"></i>
+            <button onclick="window.toggleMobileSidebar()" class="md:hidden text-gray-400 hover:text-white p-1"><i class="fa-solid fa-bars text-lg"></i></button>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-calendar-days text-white text-sm"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-black tracking-tighter text-white leading-none">RELEASE<span class="text-blue-500">CAL</span></h1>
-                    <span id="modeBadge" class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">Ultimate</span>
+                    <h1 class="text-base font-black tracking-tight text-white leading-none">RELEASE<span class="text-blue-500">CAL</span></h1>
+                    <span id="modeBadge" class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">v11 Fixed</span>
                 </div>
             </div>
         </div>
-        
-        <!-- Desktop Search -->
-        <div class="hidden md:block w-80 relative group">
-            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs group-focus-within:text-blue-500 transition"></i>
-            <i class="fa-solid fa-xmark absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs cursor-pointer hover:text-white hidden" id="clearSearchDesktop" onclick="clearSearch()"></i>
-            <input type="text" id="desktopSearch" placeholder="Search library..." class="block w-full pl-9 pr-8 py-2 border border-gray-700/50 rounded-lg bg-slate-900/50 text-gray-300 text-xs focus:border-blue-500/50 focus:bg-slate-900 focus:ring-1 focus:ring-blue-500/50 outline-none transition">
-        </div>
-
-        <div id="authButtons" class="flex gap-3"></div>
+        <div id="authButtons" class="flex gap-2"></div>
     </nav>
 
     <!-- LAYOUT -->
     <div class="flex flex-1 overflow-hidden relative">
         
         <!-- SIDEBAR -->
-        <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/80 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
+        <div id="sidebarOverlay" onclick="window.toggleMobileSidebar()" class="fixed inset-0 bg-black/80 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
         
-        <aside id="mainSidebar" class="fixed md:relative inset-y-0 left-0 w-80 bg-[#020617] md:bg-transparent border-r border-gray-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 flex flex-col h-full shadow-2xl md:shadow-none backdrop-blur-md">
-            
-            <div class="flex md:hidden items-center justify-between p-4 border-b border-gray-800">
-                <span class="font-bold text-white">Menu</span>
-                <button onclick="toggleMobileSidebar()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-
-            <div class="p-5 flex flex-col gap-6 overflow-y-auto flex-1 custom-scrollbar">
-                
-                <!-- COUNTDOWN WIDGET -->
-                <div id="countdownWidget" class="hidden animate-slide-in">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-[9px] font-bold text-blue-400 uppercase tracking-widest border border-blue-500/20 px-1.5 py-0.5 rounded bg-blue-500/5">NEXT DROP</span>
-                        <i class="fa-regular fa-clock text-gray-600 text-xs"></i>
-                    </div>
-                    
-                    <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 p-4 group cursor-pointer hover:border-blue-500/30 transition" onclick="zoomToNextEvent()">
-                        <!-- Background Glow -->
-                        <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-600/20 blur-2xl rounded-full pointer-events-none"></div>
-                        
-                        <h3 id="nextEventTitle" class="text-sm font-bold text-white truncate mb-3 relative z-10">Loading...</h3>
-                        
-                        <div class="flex justify-between gap-2 relative z-10">
-                            <div class="countdown-digit"><span class="countdown-val" id="cd-d">0</span><span class="countdown-label">DAYS</span></div>
-                            <div class="countdown-digit"><span class="countdown-val" id="cd-h">0</span><span class="countdown-label">HRS</span></div>
-                            <div class="countdown-digit"><span class="countdown-val" id="cd-m">0</span><span class="countdown-label">MIN</span></div>
-                            <div class="countdown-digit"><span class="countdown-val" id="cd-s">0</span><span class="countdown-label">SEC</span></div>
+        <aside id="mainSidebar" class="fixed md:relative inset-y-0 left-0 w-80 bg-[#020617] md:bg-transparent border-r border-gray-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 flex flex-col h-full shadow-2xl md:shadow-none backdrop-blur-xl">
+            <!-- Countdown Widget -->
+            <div class="p-5 pb-0">
+                <div id="countdownWidget" class="hidden animate-slide-up">
+                    <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 p-4 group cursor-pointer hover:border-blue-500/30 transition shadow-lg" onclick="window.zoomToNextEvent()">
+                        <div class="flex items-center justify-between mb-3 relative z-10">
+                            <span class="text-[9px] font-bold text-blue-400 uppercase tracking-widest border border-blue-500/20 px-1.5 py-0.5 rounded bg-blue-500/5">NEXT DROP</span>
+                            <i class="fa-solid fa-clock text-gray-600 text-xs"></i>
+                        </div>
+                        <h3 id="nextEventTitle" class="text-sm font-bold text-white truncate mb-4 relative z-10 pl-1 border-l-2 border-blue-500">Loading...</h3>
+                        <div class="flex justify-between gap-1 relative z-10">
+                            <div class="text-center flex-1 bg-black/20 rounded py-1"><span class="text-lg font-black text-white block leading-none" id="cd-d">0</span><span class="text-[9px] text-gray-500 font-bold">DAYS</span></div>
+                            <div class="text-center flex-1 bg-black/20 rounded py-1"><span class="text-lg font-black text-white block leading-none" id="cd-h">0</span><span class="text-[9px] text-gray-500 font-bold">HRS</span></div>
+                            <div class="text-center flex-1 bg-black/20 rounded py-1"><span class="text-lg font-black text-white block leading-none" id="cd-m">0</span><span class="text-[9px] text-gray-500 font-bold">MIN</span></div>
                         </div>
                         <div id="nextEventDate" class="text-center text-[10px] text-gray-500 mt-2 font-mono relative z-10"></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="md:hidden relative">
-                    <input type="text" id="mobileSearch" placeholder="Search..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs">
-                </div>
-
-                <!-- Filters -->
-                <div class="pt-2 border-t border-gray-800">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Categories</h3>
-                        <span id="totalCount" class="text-[10px] font-mono text-gray-600">0 Items</span>
+            <!-- Stats & Filters -->
+            <div class="p-5 flex flex-col gap-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div>
+                    <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 flex justify-between">Library Stats</h3>
+                    <div class="space-y-3">
+                        <div onclick="window.filterCat('game')" class="group cursor-pointer">
+                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-gamepad text-game"></i> Games</span> <span id="count-game" class="font-mono text-gray-500">0</span></div>
+                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-game" class="h-full bg-game w-0 progress-bar-fill"></div></div>
+                        </div>
+                        <div onclick="window.filterCat('movie')" class="group cursor-pointer">
+                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-film text-movie"></i> Movies</span> <span id="count-movie" class="font-mono text-gray-500">0</span></div>
+                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-movie" class="h-full bg-movie w-0 progress-bar-fill"></div></div>
+                        </div>
+                        <div onclick="window.filterCat('tv')" class="group cursor-pointer">
+                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-tv text-tv"></i> Shows</span> <span id="count-tv" class="font-mono text-gray-500">0</span></div>
+                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-tv" class="h-full bg-tv w-0 progress-bar-fill"></div></div>
+                        </div>
+                        <div onclick="window.filterCat('sport')" class="group cursor-pointer">
+                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-trophy text-sport"></i> Sports</span> <span id="count-sport" class="font-mono text-gray-500">0</span></div>
+                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-sport" class="h-full bg-sport w-0 progress-bar-fill"></div></div>
+                        </div>
                     </div>
                     
-                    <div class="space-y-1.5">
-                        <button onclick="filterCat('game')" class="w-full flex justify-between items-center p-2 rounded hover:bg-white/5 transition group text-left">
-                            <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-game shadow-[0_0_8px_#8b5cf6]"></div><span class="text-gray-400 text-xs group-hover:text-white transition">Games</span></div>
-                            <span id="count-game" class="text-[10px] text-gray-600 font-mono">0</span>
-                        </button>
-                        <button onclick="filterCat('movie')" class="w-full flex justify-between items-center p-2 rounded hover:bg-white/5 transition group text-left">
-                            <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-movie shadow-[0_0_8px_#f43f5e]"></div><span class="text-gray-400 text-xs group-hover:text-white transition">Movies</span></div>
-                            <span id="count-movie" class="text-[10px] text-gray-600 font-mono">0</span>
-                        </button>
-                        <button onclick="filterCat('tv')" class="w-full flex justify-between items-center p-2 rounded hover:bg-white/5 transition group text-left">
-                            <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-tv shadow-[0_0_8px_#f59e0b]"></div><span class="text-gray-400 text-xs group-hover:text-white transition">TV Shows</span></div>
-                            <span id="count-tv" class="text-[10px] text-gray-600 font-mono">0</span>
-                        </button>
-                        <button onclick="filterCat('sport')" class="w-full flex justify-between items-center p-2 rounded hover:bg-white/5 transition group text-left">
-                            <div class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-sport shadow-[0_0_8px_#10b981]"></div><span class="text-gray-400 text-xs group-hover:text-white transition">Sports</span></div>
-                            <span id="count-sport" class="text-[10px] text-gray-600 font-mono">0</span>
-                        </button>
-                    </div>
-
-                    <div class="mt-3 flex gap-2">
-                        <button onclick="filterCat('all')" class="flex-1 py-1.5 border border-slate-700 rounded text-[9px] text-gray-400 hover:text-white hover:bg-slate-800 transition uppercase tracking-wider">All</button>
-                        <button onclick="toggleHypeOnly()" id="hypeFilterBtn" class="flex-1 py-1.5 border border-orange-900/30 rounded text-[9px] text-orange-600 hover:text-orange-400 hover:bg-orange-500/10 transition uppercase tracking-wider flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-fire"></i> Hype
-                        </button>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <button onclick="window.filterCat('all')" class="glass-button py-2 rounded text-[10px] font-bold text-gray-400 uppercase tracking-wide hover:text-white">All Events</button>
+                        <button onclick="window.toggleHypeOnly()" id="hypeFilterBtn" class="glass-button py-2 rounded text-[10px] font-bold text-orange-500 uppercase tracking-wide flex items-center justify-center gap-1 hover:text-orange-400"><i class="fa-solid fa-fire"></i> Hype</button>
                     </div>
                 </div>
 
-                <!-- Tools -->
                 <div class="pt-4 mt-auto border-t border-gray-800">
-                    <button id="toggleSelectionBtn" onclick="toggleSelectionMode()" class="w-full py-2.5 border border-slate-700/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-slate-800/50 transition mb-2">
-                        SELECT & MANAGE
-                    </button>
-                    <button onclick="exportData()" class="w-full py-2.5 border border-slate-700/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-slate-800/50 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> BACKUP
-                    </button>
+                    <button id="toggleSelectionBtn" onclick="window.toggleSelectionMode()" class="w-full py-2.5 border border-slate-700/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-slate-800/50 transition mb-2">MANAGE EVENTS</button>
+                    <button onclick="window.exportData()" class="w-full py-2.5 border border-slate-700/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-slate-800/50 transition flex items-center justify-center gap-2"><i class="fa-solid fa-download"></i> EXPORT JSON</button>
                 </div>
             </div>
 
-            <!-- Add Button -->
-            <div id="sidebarAction" class="p-4 bg-slate-900/90 border-t border-gray-800 backdrop-blur transition">
-                <button onclick="window.openEventModal()" class="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus"></i> ADD RELEASE
-                </button>
+            <div class="p-4 bg-slate-900/80 border-t border-gray-800 backdrop-blur">
+                <button onclick="window.openEventModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20 active:scale-95 transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-plus"></i> NEW RELEASE</button>
             </div>
         </aside>
 
-        <!-- MAIN CALENDAR -->
-        <main class="flex-1 overflow-y-auto bg-slate-900/30 relative custom-scrollbar">
-            <div class="h-full p-0 md:p-6">
-                <div id="calendar" class="h-full w-full glass-panel md:rounded-2xl p-1 md:p-4"></div>
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 flex flex-col relative overflow-hidden bg-slate-900/20">
+            <!-- Control Bar -->
+            <div class="px-4 py-3 md:px-6 flex flex-col md:flex-row gap-3 items-center justify-between z-30">
+                <div class="relative w-full md:w-80 group">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs group-focus-within:text-blue-500 transition"></i>
+                    <i id="clearSearchBtn" class="fa-solid fa-xmark absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs cursor-pointer hover:text-white hidden" onclick="window.clearSearch()"></i>
+                    <input type="text" id="globalSearch" placeholder="Search title, category..." class="w-full pl-9 pr-8 py-2 border border-slate-700/50 rounded-full bg-slate-900/60 backdrop-blur text-gray-200 text-xs focus:border-blue-500/50 outline-none transition shadow-lg">
+                </div>
+                
+                <div class="flex bg-slate-900/60 backdrop-blur border border-slate-700/50 rounded-full p-1 shadow-lg">
+                    <button onclick="window.changeView('multiMonthYear')" class="px-4 py-1.5 rounded-full text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition" id="btnYear">YEAR</button>
+                    <button onclick="window.changeView('dayGridMonth')" class="px-4 py-1.5 rounded-full text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition" id="btnMonth">MONTH</button>
+                    <button onclick="window.changeView('listMonth')" class="px-4 py-1.5 rounded-full text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition" id="btnList">LIST</button>
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="flex-1 overflow-y-auto px-2 pb-2 md:px-6 md:pb-6 custom-scrollbar">
+                <div id="calendar" class="h-full w-full glass-panel rounded-2xl p-1 md:p-4"></div>
             </div>
             
-            <button id="bulkDeleteFab" onclick="deleteSelectedEvents()" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-red-600 text-white px-6 py-4 rounded-full shadow-2xl font-bold flex items-center gap-3 z-50 transform translate-y-32 transition-transform duration-300 hover:bg-red-500 border border-red-400">
-                <i class="fa-solid fa-trash"></i> <span class="text-sm"><span id="bulkDeleteCount">0</span> Selected</span>
+            <!-- Bulk Delete -->
+            <button id="bulkDeleteFab" onclick="window.deleteSelectedEvents()" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-red-600 text-white px-6 py-3.5 rounded-full shadow-2xl font-bold flex items-center gap-3 z-50 transform translate-y-32 transition-transform duration-300 hover:bg-red-500 border border-red-400">
+                <i class="fa-solid fa-trash"></i> <span class="text-xs">DELETE <span id="bulkDeleteCount">0</span></span>
             </button>
         </main>
     </div>
 
-    <!-- MODAL: ADD / EDIT EVENT -->
+    <!-- MODAL: ADD/EDIT EVENT -->
     <div id="eventModal" class="fixed inset-0 z-[60] hidden bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4 transition-opacity duration-300">
         <div class="glass-panel w-full max-w-lg p-6 rounded-t-2xl md:rounded-2xl relative transform transition-transform duration-300 translate-y-full md:translate-y-0 opacity-0 md:opacity-100 flex flex-col max-h-[90vh] overflow-y-auto border border-gray-700/50 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h2 id="modalTitle" class="text-lg font-black text-white tracking-wide">NEW RELEASE</h2>
-                <button onclick="window.closeModal('eventModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="window.closeModal('eventModal')" class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <form id="addEventForm" class="space-y-4">
-                <input type="hidden" id="evId"> <!-- Hidden ID for Editing -->
-                
-                <div class="group">
+                <input type="hidden" id="evId"> 
+                <div>
                     <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Title</label>
-                    <input type="text" id="evTitle" placeholder="Event Title" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs transition">
+                    <input type="text" id="evTitle" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
                 </div>
-                
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Release Date</label>
-                        <input type="date" id="evDate" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs transition">
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Date</label>
+                        <input type="date" id="evDate" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
                     </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Category</label>
-                        <select id="evCategory" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs appearance-none transition">
+                        <select id="evCategory" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs appearance-none">
                             <option value="game">Video Game</option>
                             <option value="movie">Movie</option>
                             <option value="tv">TV Show</option>
@@ -301,30 +236,29 @@
                         </select>
                     </div>
                 </div>
-
                 <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Sub-Category</label>
-                    <input type="text" id="evSub" placeholder="Platform / Network (Optional)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs transition">
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Platform / Network</label>
+                    <input type="text" id="evSub" placeholder="e.g. Steam, Netflix" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Poster Image URL</label>
-                        <input type="url" id="evImage" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs transition">
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Image URL</label>
+                        <input type="url" id="evImage" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Official Link</label>
-                        <input type="url" id="evLink" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs transition">
+                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Link URL</label>
+                        <input type="url" id="evLink" placeholder="Official Link..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
                     </div>
                 </div>
-
                 <div class="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/5 cursor-pointer hover:bg-white/10 transition" onclick="document.getElementById('evHype').click()">
                     <input type="checkbox" id="evHype" class="w-4 h-4 rounded bg-slate-700 accent-blue-600">
-                    <span class="text-xs font-bold text-white">High Priority (Hype Mode)</span>
-                    <i class="fa-solid fa-fire text-orange-500 ml-auto"></i>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-white">High Priority (Hype)</span>
+                        <span class="text-[9px] text-gray-400">Adds special glow to event card</span>
+                    </div>
+                    <i class="fa-solid fa-fire text-orange-500 ml-auto animate-pulse"></i>
                 </div>
-
-                <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-lg font-bold text-sm mt-2 shadow-lg shadow-blue-600/20 transition-all">SAVE EVENT</button>
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3.5 rounded-lg font-bold text-sm mt-2 shadow-lg shadow-blue-600/20">SAVE EVENT</button>
             </form>
         </div>
     </div>
@@ -332,35 +266,28 @@
     <!-- MODAL: DETAILS -->
     <div id="detailsModal" class="fixed inset-0 z-[60] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
         <div class="glass-panel w-full max-w-md rounded-2xl relative transform transition-all scale-95 opacity-0 overflow-hidden border border-gray-700 shadow-2xl">
-            <!-- Image Header -->
-            <div id="detImageContainer" class="h-64 w-full bg-slate-800 bg-cover bg-center hidden relative group">
+            <div id="detImageContainer" class="h-64 w-full bg-slate-800 bg-cover bg-center hidden relative">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent"></div>
-                <button onclick="window.closeModal('detailsModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-white rounded-full w-8 h-8 flex items-center justify-center backdrop-blur transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.closeModal('detailsModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-white rounded-full w-8 h-8 flex items-center justify-center backdrop-blur"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <button id="detCloseNoImg" onclick="window.closeModal('detailsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white hidden"><i class="fa-solid fa-xmark text-xl"></i></button>
 
             <div class="p-6 pt-2 text-center relative">
-                <!-- Fallback Icon -->
                 <div id="detColor" class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl shadow-xl border-2 border-white/10 -mt-8 relative z-10 bg-slate-900 transition-transform hover:scale-110"></div>
-                
                 <h2 id="detTitle" class="text-2xl font-black text-white mb-1 leading-tight mt-2 drop-shadow-lg"></h2>
                 
                 <div class="flex items-center justify-center gap-2 mb-6">
                     <span id="detBadge" class="hidden text-[9px] bg-orange-500/10 text-orange-400 border border-orange-500/50 px-2 py-0.5 rounded uppercase font-bold tracking-wider">HYPE</span>
                     <span id="detSub" class="text-[10px] text-blue-400 uppercase tracking-widest font-bold"></span>
                 </div>
-                
                 <div class="bg-slate-800/50 rounded-lg p-3 mb-6 border border-slate-700/50 flex items-center justify-center gap-3">
                     <i class="fa-regular fa-calendar-check text-gray-400"></i>
                     <span id="detDate" class="text-sm font-mono text-white font-bold"></span>
                 </div>
-                
                 <div class="grid grid-cols-2 gap-3">
                     <a id="detLinkBtn" href="#" target="_blank" class="col-span-2 hidden bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-white py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 border border-blue-500/20">VISIT LINK</a>
-                    
                     <button id="editEventBtn" class="bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-lg text-xs font-bold transition border border-gray-700">EDIT</button>
                     <button id="downloadIcsBtn" class="bg-slate-800 hover:bg-slate-700 text-gray-300 py-2.5 rounded-lg text-xs font-bold transition border border-gray-700">SYNC</button>
-                    
                     <button id="deleteEventBtn" class="col-span-2 bg-red-500/10 hover:bg-red-500/90 text-red-500 hover:text-white py-2.5 rounded-lg text-xs font-bold transition border border-red-500/20">DELETE EVENT</button>
                 </div>
             </div>
@@ -375,7 +302,7 @@
             <form id="loginForm" class="space-y-4">
                 <input type="email" id="loginEmail" placeholder="Email Address" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs">
                 <input type="password" id="loginPass" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs">
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-lg font-bold text-sm">LOG IN</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-lg font-bold text-sm">Log In</button>
             </form>
         </div>
     </div>
@@ -386,7 +313,6 @@
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // CONFIG
         const firebaseConfig = {
             apiKey: "PASTE_API_KEY_HERE", 
             authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
@@ -405,16 +331,10 @@
         if (firebaseConfig.apiKey === "PASTE_API_KEY_HERE" || !firebaseConfig.apiKey) {
             isLocalMode = true;
         } else {
-            try {
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-            } catch (e) { isLocalMode = true; }
+            try { const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); } catch (e) { isLocalMode = true; }
         }
-
         document.getElementById('modeBadge').innerText = isLocalMode ? "LOCAL" : "CLOUD";
 
-        // DATA SERVICE
         const DataService = {
             init: (callback) => {
                 if(isLocalMode) {
@@ -431,65 +351,60 @@
                 }
             },
             save: async (event) => {
-                if (event.id) { // UPDATE
-                    if(isLocalMode) {
-                        const current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                        const idx = current.findIndex(e => String(e.id) === String(event.id));
-                        if(idx > -1) {
-                            current[idx] = event;
-                            localStorage.setItem('localEvents', JSON.stringify(current));
-                            location.reload(); 
+                try {
+                    if (event.id) {
+                        if(isLocalMode) {
+                            const current = JSON.parse(localStorage.getItem('localEvents')) || [];
+                            const idx = current.findIndex(e => String(e.id) === String(event.id));
+                            if(idx > -1) { current[idx] = event; localStorage.setItem('localEvents', JSON.stringify(current)); location.reload(); }
+                        } else {
+                            const { id, ...data } = event;
+                            await updateDoc(doc(db, "events", String(id)), data);
                         }
+                        showToast("Event Updated", "success");
                     } else {
-                        const { id, ...data } = event; // remove ID from data payload
-                        await updateDoc(doc(db, "events", String(id)), data);
+                        if(isLocalMode) {
+                            const current = JSON.parse(localStorage.getItem('localEvents')) || [];
+                            event.id = 'loc_' + Date.now().toString(); 
+                            current.push(event); localStorage.setItem('localEvents', JSON.stringify(current)); location.reload(); 
+                        } else {
+                            await addDoc(collection(db, "events"), event);
+                        }
+                        showToast("Event Created", "success");
                     }
-                    showToast("Event Updated", "success");
-                } else { // CREATE
-                    if(isLocalMode) {
-                        const current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                        event.id = 'loc_' + Date.now().toString(); 
-                        current.push(event);
-                        localStorage.setItem('localEvents', JSON.stringify(current));
-                        location.reload(); 
-                    } else {
-                        await addDoc(collection(db, "events"), event);
-                    }
-                    showToast("Event Added", "success");
-                }
+                } catch(e) { console.error(e); showToast("Save failed", "error"); }
             },
             delete: async (id) => {
-                if(isLocalMode) {
-                    let current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                    const filtered = current.filter(e => String(e.id) !== String(id));
-                    localStorage.setItem('localEvents', JSON.stringify(filtered));
-                    location.reload();
-                } else {
-                    await deleteDoc(doc(db, "events", String(id)));
-                }
-                showToast("Event Deleted", "info");
+                try {
+                    if(isLocalMode) {
+                        let current = JSON.parse(localStorage.getItem('localEvents')) || [];
+                        const filtered = current.filter(e => String(e.id) !== String(id));
+                        localStorage.setItem('localEvents', JSON.stringify(filtered)); location.reload();
+                    } else {
+                        await deleteDoc(doc(db, "events", String(id)));
+                    }
+                    showToast("Event Deleted", "info");
+                } catch(e) { console.error(e); showToast("Delete failed", "error"); }
             },
             deleteMultiple: async (ids) => {
-                if(isLocalMode) {
-                    let current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                    const filtered = current.filter(e => !ids.has(String(e.id)));
-                    localStorage.setItem('localEvents', JSON.stringify(filtered));
-                    location.reload();
-                } else {
-                    const batch = writeBatch(db);
-                    ids.forEach(id => batch.delete(doc(db, "events", id)));
-                    await batch.commit();
-                }
-                showToast(`Deleted ${ids.size} items`, "info");
+                try {
+                    if(isLocalMode) {
+                        let current = JSON.parse(localStorage.getItem('localEvents')) || [];
+                        const filtered = current.filter(e => !ids.has(String(e.id)));
+                        localStorage.setItem('localEvents', JSON.stringify(filtered)); location.reload();
+                    } else {
+                        const batch = writeBatch(db);
+                        ids.forEach(id => batch.delete(doc(db, "events", id)));
+                        await batch.commit();
+                    }
+                    showToast(`Deleted ${ids.size} events`, "info");
+                } catch(e) { console.error(e); showToast("Bulk delete failed", "error"); }
             },
             updateDate: async (id, newDateStr) => {
                 if(isLocalMode) {
                     const current = JSON.parse(localStorage.getItem('localEvents')) || [];
                     const idx = current.findIndex(e => String(e.id) === String(id));
-                    if(idx > -1) {
-                        current[idx].date = newDateStr;
-                        localStorage.setItem('localEvents', JSON.stringify(current));
-                    }
+                    if(idx > -1) { current[idx].date = newDateStr; localStorage.setItem('localEvents', JSON.stringify(current)); }
                 } else {
                     await updateDoc(doc(db, "events", id), { date: newDateStr });
                 }
@@ -497,17 +412,13 @@
             }
         };
 
-        // CALENDAR INIT
+        // --- CALENDAR SETUP ---
         document.addEventListener('DOMContentLoaded', () => {
             const calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: isMobile ? 'listYear' : 'multiMonthYear',
-                multiMonthMaxColumns: 3, 
-                headerToolbar: { 
-                    left: 'prev,next today', 
-                    center: 'title', 
-                    right: isMobile ? '' : 'multiMonthYear,dayGridMonth,listMonth' 
-                },
+                multiMonthMaxColumns: 3,
+                headerToolbar: false, 
                 height: '100%',
                 themeSystem: 'standard',
                 editable: true,
@@ -516,35 +427,26 @@
                 eventClick: handleEventClick,
                 eventDrop: (info) => DataService.updateDate(info.event.id, info.event.start.toISOString().split('T')[0]),
                 
-                // --- POSTER LOGIC ---
                 eventContent: function(arg) {
                     const props = arg.event.extendedProps;
-                    let innerHtml = '';
-                    
                     if (arg.view.type !== 'listYear' && arg.view.type !== 'listMonth') {
                         let bgStyle = props.img ? `background-image:url('${props.img}')` : '';
+                        let posterDiv = props.img ? `<div class="event-poster-bg" style="${bgStyle}"></div>` : `<div class="event-poster-bg" style="background:linear-gradient(45deg, ${arg.event.backgroundColor}, #1e293b)"></div>`;
                         
-                        // Fallback handling: Add onError logic inside img tag if using img tag, but here we use BG.
-                        // We use a specific class for fallback styling if img is null.
-                        
-                        let posterDiv = props.img 
-                            ? `<div class="event-poster-bg" style="${bgStyle}"></div>` 
-                            : `<div class="event-poster-fallback"></div>`;
-
-                        innerHtml = `
+                        return { html: `
                             ${posterDiv}
                             <div class="event-overlay"></div>
                             <div class="event-content">
                                 <div class="font-bold text-white text-[9px] leading-tight drop-shadow-md truncate">${arg.event.title}</div>
                                 ${props.isHype ? '<i class="fa-solid fa-fire text-orange-400 text-[8px] mt-1 animate-pulse"></i>' : ''}
-                            </div>`;
-                        
-                        return { html: innerHtml };
+                            </div>` 
+                        };
                     }
                 },
                 eventClassNames: (arg) => arg.event.extendedProps.isHype ? ['hype-event'] : []
             });
             calendar.render();
+            updateActiveViewBtn(isMobile ? 'listYear' : 'multiMonthYear');
 
             DataService.init((events) => {
                 allEvents = events;
@@ -556,16 +458,24 @@
 
         function renderEvents(events) {
             calendar.removeAllEvents();
-            
-            // Filter Hype
             let toRender = hypeOnly ? events.filter(e => e.isHype) : events;
-
+            const searchVal = document.getElementById('globalSearch').value.toLowerCase();
+            
             toRender.forEach(data => {
                 let color = '#3b82f6';
                 if(data.category === 'game') color = '#8b5cf6';
                 if(data.category === 'movie') color = '#f43f5e';
                 if(data.category === 'sport') color = '#10b981';
                 if(data.category === 'tv') color = '#f59e0b';
+                
+                let classList = [];
+                if(data.isHype) classList.push('hype-event');
+                if(searchVal) {
+                    const match = data.title.toLowerCase().includes(searchVal) || 
+                                  (data.subCategory && data.subCategory.toLowerCase().includes(searchVal)) ||
+                                  data.category.includes(searchVal);
+                    if(!match) classList.push('dimmed');
+                }
 
                 calendar.addEvent({
                     id: String(data.id),
@@ -573,26 +483,43 @@
                     start: data.date,
                     backgroundColor: color,
                     borderColor: color,
-                    textColor: '#fff',
+                    className: classList,
                     extendedProps: { 
-                        category: data.category, 
-                        sub: data.subCategory, 
-                        isHype: data.isHype,
-                        img: data.img || null, 
-                        link: data.link || null 
+                        category: data.category, sub: data.subCategory, 
+                        isHype: data.isHype, img: data.img || null, link: data.link || null 
                     }
                 });
             });
         }
 
-        // --- NEW EDIT FUNCTIONALITY ---
+        // --- GLOBAL FUNCTIONS EXPORT ---
+        window.changeView = (viewName) => { calendar.changeView(viewName); updateActiveViewBtn(viewName); }
+        function updateActiveViewBtn(viewName) {
+            ['btnYear','btnMonth','btnList'].forEach(id => document.getElementById(id).classList.remove('bg-white/10', 'text-white'));
+            if(viewName.includes('Year')) document.getElementById('btnYear').classList.add('bg-white/10', 'text-white');
+            else if(viewName.includes('Month') && !viewName.includes('List')) document.getElementById('btnMonth').classList.add('bg-white/10', 'text-white');
+            else document.getElementById('btnList').classList.add('bg-white/10', 'text-white');
+        }
+
+        document.getElementById('globalSearch').addEventListener('input', () => renderEvents(allEvents));
+        window.clearSearch = () => { document.getElementById('globalSearch').value = ''; renderEvents(allEvents); document.getElementById('clearSearchBtn').classList.add('hidden'); }
+        document.getElementById('globalSearch').addEventListener('input', (e) => {
+            document.getElementById('clearSearchBtn').style.display = e.target.value ? 'block' : 'none';
+        });
+
+        function handleEventClick(info) {
+            info.jsEvent.preventDefault();
+            if(selectionMode) {
+                const id = String(info.event.id);
+                if(selectedEventIds.has(id)) { selectedEventIds.delete(id); info.el.classList.remove('selected-event'); } 
+                else { selectedEventIds.add(id); info.el.classList.add('selected-event'); }
+                updateBulkDeleteUI();
+            } else { showEventDetails(info.event); }
+        }
+
         window.openEventModal = (eventObj = null) => {
             const form = document.getElementById('addEventForm');
-            const modalTitle = document.getElementById('modalTitle');
-            const submitBtn = document.getElementById('submitBtn');
-            
             if (eventObj) {
-                // EDIT MODE
                 const props = eventObj.extendedProps;
                 document.getElementById('evId').value = eventObj.id;
                 document.getElementById('evTitle').value = eventObj.title;
@@ -602,120 +529,16 @@
                 document.getElementById('evImage').value = props.img || '';
                 document.getElementById('evLink').value = props.link || '';
                 document.getElementById('evHype').checked = props.isHype;
-
-                modalTitle.innerText = "EDIT RELEASE";
-                submitBtn.innerText = "UPDATE EVENT";
+                document.getElementById('modalTitle').innerText = "EDIT RELEASE";
+                document.getElementById('submitBtn').innerText = "UPDATE EVENT";
             } else {
-                // CREATE MODE
                 form.reset();
                 document.getElementById('evId').value = '';
-                modalTitle.innerText = "NEW RELEASE";
-                submitBtn.innerText = "ADD TO CALENDAR";
+                document.getElementById('modalTitle').innerText = "NEW RELEASE";
+                document.getElementById('submitBtn').innerText = "ADD TO CALENDAR";
             }
             window.openModal('eventModal');
         };
-
-        // --- COUNTDOWN LOGIC ---
-        function startCountdown(events) {
-            const widget = document.getElementById('countdownWidget');
-            const now = new Date();
-            const upcoming = events
-                .map(e => ({...e, dateObj: new Date(e.date + 'T00:00:00')}))
-                .filter(e => e.dateObj >= now)
-                .sort((a,b) => a.dateObj - b.dateObj)[0];
-
-            if(!upcoming) {
-                widget.classList.add('hidden');
-                return;
-            }
-
-            widget.classList.remove('hidden');
-            document.getElementById('nextEventTitle').innerText = upcoming.title;
-            document.getElementById('nextEventDate').innerText = upcoming.dateObj.toLocaleDateString(undefined, {weekday:'long', month:'short', day:'numeric'});
-
-            if(countdownInterval) clearInterval(countdownInterval);
-            
-            countdownInterval = setInterval(() => {
-                const current = new Date();
-                const diff = upcoming.dateObj - current;
-                if(diff <= 0) {
-                    clearInterval(countdownInterval);
-                    startCountdown(events); // Recalculate
-                    return;
-                }
-                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((diff % (1000 * 60)) / 1000);
-                document.getElementById('cd-d').innerText = d;
-                document.getElementById('cd-h').innerText = h < 10 ? '0'+h : h;
-                document.getElementById('cd-m').innerText = m < 10 ? '0'+m : m;
-                document.getElementById('cd-s').innerText = s < 10 ? '0'+s : s;
-            }, 1000);
-        }
-
-        window.zoomToNextEvent = () => {
-             const widget = document.getElementById('countdownWidget');
-             const title = document.getElementById('nextEventTitle').innerText;
-             // Find event in calendar
-             const event = calendar.getEvents().find(e => e.title === title);
-             if(event) {
-                 calendar.gotoDate(event.start);
-                 // Highlight animation could be added here
-                 showToast("Zoomed to " + title, "info");
-             }
-        };
-
-        // --- SEARCH & FILTER ---
-        const handleSearch = (e) => {
-            const term = e.target.value.toLowerCase();
-            const clearBtn = document.getElementById('clearSearchDesktop');
-            
-            if(clearBtn) clearBtn.style.display = term ? 'block' : 'none';
-
-            const filtered = allEvents.filter(ev => 
-                (ev.title && ev.title.toLowerCase().includes(term)) || 
-                (ev.subCategory && ev.subCategory.toLowerCase().includes(term)) ||
-                (ev.category && ev.category.toLowerCase().includes(term))
-            );
-            renderEvents(filtered);
-        };
-        document.getElementById('desktopSearch').addEventListener('input', handleSearch);
-        document.getElementById('mobileSearch').addEventListener('input', handleSearch);
-
-        window.clearSearch = () => {
-            document.getElementById('desktopSearch').value = '';
-            document.getElementById('desktopSearch').dispatchEvent(new Event('input'));
-        }
-
-        window.toggleHypeOnly = () => {
-            hypeOnly = !hypeOnly;
-            const btn = document.getElementById('hypeFilterBtn');
-            if(hypeOnly) {
-                btn.classList.add('bg-orange-500/20', 'border-orange-500', 'text-orange-400');
-            } else {
-                btn.classList.remove('bg-orange-500/20', 'border-orange-500', 'text-orange-400');
-            }
-            renderEvents(allEvents); // Re-render with filter
-        }
-
-        // --- INTERACTIONS ---
-        function handleEventClick(info) {
-            info.jsEvent.preventDefault();
-            if(selectionMode) {
-                const id = String(info.event.id);
-                if(selectedEventIds.has(id)) {
-                    selectedEventIds.delete(id);
-                    info.el.classList.remove('selected-event');
-                } else {
-                    selectedEventIds.add(id);
-                    info.el.classList.add('selected-event');
-                }
-                updateBulkDeleteUI();
-            } else {
-                showEventDetails(info.event);
-            }
-        }
 
         function showEventDetails(event) {
             const props = event.extendedProps;
@@ -724,68 +547,41 @@
             document.getElementById('detDate').innerText = event.start.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('detBadge').style.display = props.isHype ? 'inline-block' : 'none';
 
-            const imgContainer = document.getElementById('detImageContainer');
-            const colorIcon = document.getElementById('detColor');
-            const closeNoImg = document.getElementById('detCloseNoImg');
-
-            // Image Handler
             if (props.img) {
-                imgContainer.style.backgroundImage = `url('${props.img}')`;
-                imgContainer.classList.remove('hidden');
-                colorIcon.classList.add('hidden');
-                closeNoImg.classList.add('hidden');
-                
-                // Add error handler for background image? Hard in CSS.
-                // We assume user provides valid URL or we could pre-fetch in JS.
+                document.getElementById('detImageContainer').style.backgroundImage = `url('${props.img}')`;
+                document.getElementById('detImageContainer').classList.remove('hidden');
+                document.getElementById('detColor').classList.add('hidden');
+                document.getElementById('detCloseNoImg').classList.add('hidden');
             } else {
-                imgContainer.classList.add('hidden');
-                colorIcon.classList.remove('hidden');
-                closeNoImg.classList.remove('hidden');
-                colorIcon.style.backgroundColor = event.backgroundColor;
+                document.getElementById('detImageContainer').classList.add('hidden');
+                document.getElementById('detColor').classList.remove('hidden');
+                document.getElementById('detCloseNoImg').classList.remove('hidden');
+                document.getElementById('detColor').style.backgroundColor = event.backgroundColor;
                 let icon = 'fa-star';
                 if(props.category === 'game') icon = 'fa-gamepad';
                 if(props.category === 'movie') icon = 'fa-film';
                 if(props.category === 'tv') icon = 'fa-tv';
                 if(props.category === 'sport') icon = 'fa-trophy';
-                colorIcon.innerHTML = `<i class="fa-solid ${icon} text-white"></i>`;
+                document.getElementById('detColor').innerHTML = `<i class="fa-solid ${icon} text-white"></i>`;
             }
 
-            const linkBtn = document.getElementById('detLinkBtn');
-            if(props.link) {
-                linkBtn.href = props.link;
-                linkBtn.classList.remove('hidden');
-                linkBtn.classList.add('flex');
-            } else {
-                linkBtn.classList.add('hidden');
-                linkBtn.classList.remove('flex');
-            }
-
-            // Bind Edit Button
-            document.getElementById('editEventBtn').onclick = () => {
-                window.closeModal('detailsModal');
-                window.openEventModal(event);
-            };
-
-            // Bind Delete Button
+            document.getElementById('detLinkBtn').href = props.link || '#';
+            document.getElementById('detLinkBtn').classList.toggle('hidden', !props.link);
+            document.getElementById('editEventBtn').onclick = () => { window.closeModal('detailsModal'); window.openEventModal(event); };
+            
             const delBtn = document.getElementById('deleteEventBtn');
-            const newDelBtn = delBtn.cloneNode(true); // Remove old listeners
+            const newDelBtn = delBtn.cloneNode(true);
             delBtn.parentNode.replaceChild(newDelBtn, delBtn);
             newDelBtn.addEventListener('click', () => {
-                if(confirm("Delete this event?")) {
-                    DataService.delete(event.id);
-                    window.closeModal('detailsModal');
-                }
+                if(confirm("Delete this event?")) { DataService.delete(event.id); window.closeModal('detailsModal'); }
             });
-
             window.openModal('detailsModal');
         }
 
-        // --- SUBMIT HANDLER ---
         document.getElementById('addEventForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const id = document.getElementById('evId').value;
-            const eventData = {
-                id: id || null,
+            const data = {
+                id: document.getElementById('evId').value || null,
                 title: document.getElementById('evTitle').value,
                 date: document.getElementById('evDate').value,
                 category: document.getElementById('evCategory').value,
@@ -794,127 +590,81 @@
                 img: document.getElementById('evImage').value,
                 link: document.getElementById('evLink').value
             };
-            
-            await DataService.save(eventData);
+            await DataService.save(data);
             window.closeModal('eventModal');
-            
-            // Celebration
-            if(eventData.isHype) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-            else confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+            if(data.isHype) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
         });
 
-        // --- BULK ACTIONS ---
+        // --- STATS, UTILS & AUTH (Exported to Window) ---
+        window.filterCat = (cat) => { 
+            cat === 'all' ? renderEvents(allEvents) : renderEvents(allEvents.filter(e => e.category === cat));
+            if(isMobile) window.toggleMobileSidebar();
+        }
+        window.toggleHypeOnly = () => {
+            hypeOnly = !hypeOnly;
+            const btn = document.getElementById('hypeFilterBtn');
+            if(hypeOnly) btn.classList.add('bg-orange-500/20', 'border-orange-500', 'text-orange-400');
+            else btn.classList.remove('bg-orange-500/20', 'border-orange-500', 'text-orange-400');
+            renderEvents(allEvents);
+        }
+        window.toggleMobileSidebar = () => {
+            document.getElementById('mainSidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebarOverlay').classList.toggle('hidden');
+        }
+        window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); void document.getElementById(id).offsetWidth; document.getElementById(id).querySelector('.glass-panel').classList.remove('translate-y-full','opacity-0'); }
+        window.closeModal = (id) => { document.getElementById(id).querySelector('.glass-panel').classList.add('translate-y-full','opacity-0'); setTimeout(()=>document.getElementById(id).classList.add('hidden'),300); }
         window.toggleSelectionMode = () => {
             selectionMode = !selectionMode;
             const btn = document.getElementById('toggleSelectionBtn');
             const calDiv = document.getElementById('calendar');
-            if(selectionMode) {
-                btn.innerHTML = `<i class="fa-solid fa-check mr-2"></i> DONE SELECTING`;
-                btn.classList.add('bg-blue-600', 'text-white', 'border-transparent');
-                calDiv.classList.add('selection-mode');
-                if(isMobile) toggleMobileSidebar();
-                showToast("Tap events to select them", "info");
-            } else {
-                btn.innerHTML = `SELECT / DELETE`;
-                btn.classList.remove('bg-blue-600', 'text-white', 'border-transparent');
-                calDiv.classList.remove('selection-mode');
-                selectedEventIds.clear();
-                document.querySelectorAll('.selected-event').forEach(el => el.classList.remove('selected-event'));
-                updateBulkDeleteUI();
-            }
+            if(selectionMode) { btn.innerText = "DONE MANAGING"; btn.classList.add('bg-blue-600', 'text-white', 'border-transparent'); calDiv.classList.add('selection-mode'); showToast("Select events to manage", "info"); }
+            else { btn.innerText = "MANAGE EVENTS"; btn.classList.remove('bg-blue-600', 'text-white', 'border-transparent'); calDiv.classList.remove('selection-mode'); selectedEventIds.clear(); document.querySelectorAll('.selected-event').forEach(el => el.classList.remove('selected-event')); updateBulkDeleteUI(); }
         }
-
-        function updateBulkDeleteUI() {
-            const fab = document.getElementById('bulkDeleteFab');
-            if(selectedEventIds.size > 0) {
-                fab.classList.remove('translate-y-32');
-                document.getElementById('bulkDeleteCount').innerText = selectedEventIds.size;
-            } else {
-                fab.classList.add('translate-y-32');
-            }
+        function updateBulkDeleteUI() { const fab = document.getElementById('bulkDeleteFab'); if(selectedEventIds.size > 0) { fab.classList.remove('translate-y-32'); document.getElementById('bulkDeleteCount').innerText = selectedEventIds.size; } else { fab.classList.add('translate-y-32'); } }
+        window.deleteSelectedEvents = async () => { if(confirm(`Delete ${selectedEventIds.size} events?`)) { await DataService.deleteMultiple(selectedEventIds); window.toggleSelectionMode(); } }
+        window.exportData = () => { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allEvents,null,2)); const node = document.createElement('a'); node.setAttribute("href", dataStr); node.setAttribute("download", "GlobalHub_Backup.json"); document.body.appendChild(node); node.click(); node.remove(); }
+        
+        function startCountdown(events) {
+            const widget = document.getElementById('countdownWidget');
+            const now = new Date();
+            const upcoming = events.map(e => ({...e, dateObj: new Date(e.date + 'T00:00:00')})).filter(e => e.dateObj >= now).sort((a,b) => a.dateObj - b.dateObj)[0];
+            if(!upcoming) { widget.classList.add('hidden'); return; }
+            widget.classList.remove('hidden');
+            document.getElementById('nextEventTitle').innerText = upcoming.title;
+            document.getElementById('nextEventDate').innerText = upcoming.dateObj.toLocaleDateString();
+            if(countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const diff = upcoming.dateObj - new Date();
+                if(diff <= 0) { clearInterval(countdownInterval); startCountdown(events); return; }
+                document.getElementById('cd-d').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+                document.getElementById('cd-h').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                document.getElementById('cd-m').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            }, 1000);
         }
-
-        window.deleteSelectedEvents = async () => {
-            if(confirm(`Delete ${selectedEventIds.size} events?`)) {
-                await DataService.deleteMultiple(selectedEventIds);
-                toggleSelectionMode();
-            }
-        }
-
-        // --- UI UTILS ---
-        window.openModal = (id) => { 
-            const el = document.getElementById(id);
-            el.classList.remove('hidden');
-            void el.offsetWidth;
-            const panel = el.querySelector('.glass-panel');
-            panel.classList.remove('translate-y-full', 'scale-95', 'opacity-0');
-            panel.classList.add('translate-y-0', 'scale-100', 'opacity-100');
-        }
-        window.closeModal = (id) => { 
-            const el = document.getElementById(id);
-            const panel = el.querySelector('.glass-panel');
-            panel.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
-            panel.classList.add('translate-y-full', 'md:translate-y-0', 'scale-95', 'opacity-0');
-            setTimeout(() => el.classList.add('hidden'), 300);
-        }
-        window.toggleMobileSidebar = () => {
-            const sb = document.getElementById('mainSidebar');
-            const ov = document.getElementById('sidebarOverlay');
-            sb.classList.toggle('-translate-x-full');
-            ov.classList.toggle('hidden');
-        }
-        window.filterCat = (cat) => { 
-            cat === 'all' ? renderEvents(allEvents) : renderEvents(allEvents.filter(e => e.category === cat));
-            if(isMobile) toggleMobileSidebar();
-        }
-        window.exportData = () => {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allEvents, null, 2));
-            const node = document.createElement('a');
-            node.setAttribute("href", dataStr);
-            node.setAttribute("download", "GlobalHub_Backup.json");
-            document.body.appendChild(node);
-            node.click();
-            node.remove();
-        }
-
+        window.zoomToNextEvent = () => {
+             const title = document.getElementById('nextEventTitle').innerText;
+             const event = calendar.getEvents().find(e => e.title === title);
+             if(event) { calendar.gotoDate(event.start); showToast("Zoomed to " + title, "info"); }
+        };
         function updateStats(events) {
             const counts = { game:0, movie:0, tv:0, sport:0 };
             events.forEach(e => { if(counts[e.category] !== undefined) counts[e.category]++ });
-            document.getElementById('totalCount').innerText = events.length + " Items";
-            Object.keys(counts).forEach(cat => document.getElementById(`count-${cat}`).innerText = counts[cat]);
+            const total = events.length;
+            Object.keys(counts).forEach(cat => { document.getElementById(`count-${cat}`).innerText = counts[cat]; const pct = total === 0 ? 0 : (counts[cat] / total) * 100; document.getElementById(`bar-${cat}`).style.width = `${pct}%`; });
         }
-
         function updateAuthUI(user) {
-            const ab = document.getElementById('authButtons');
-            const sa = document.getElementById('sidebarAction');
-            if(user) {
-                ab.innerHTML = `<button onclick="${isLocalMode ? 'location.reload()' : 'signOut(auth)'}" class="text-[10px] font-bold text-red-400 border border-red-500/30 px-3 py-1.5 rounded bg-red-500/10 hover:bg-red-500 hover:text-white transition">LOGOUT</button>`;
-                if(sa) sa.classList.remove('opacity-50', 'pointer-events-none');
-            } else {
-                ab.innerHTML = `<button onclick="window.openModal('loginModal')" class="text-[10px] font-bold text-white bg-blue-600 px-4 py-2 rounded shadow-lg hover:bg-blue-500 transition">LOGIN</button>`;
-                if(sa) sa.classList.add('opacity-50', 'pointer-events-none');
-            }
+            const ab = document.getElementById('authButtons'); const sa = document.getElementById('sidebarAction');
+            if(user) { ab.innerHTML = `<button onclick="${isLocalMode ? 'location.reload()' : 'window.signOut(auth)'}" class="glass-button text-[9px] font-bold text-red-400 px-3 py-1.5 rounded">LOGOUT</button>`; if(sa) sa.classList.remove('opacity-50', 'pointer-events-none'); }
+            else { ab.innerHTML = `<button onclick="window.openModal('loginModal')" class="glass-button text-[9px] font-bold text-white px-3 py-1.5 rounded bg-blue-600/20 border-blue-500/50">LOGIN</button>`; if(sa) sa.classList.add('opacity-50', 'pointer-events-none'); }
         }
-
-        if(!isLocalMode) {
-            window.signOut = signOut;
-            onAuthStateChanged(auth, updateAuthUI);
-            document.getElementById('loginForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value)
-                    .then(() => window.closeModal('loginModal'))
-                    .catch(e => showToast(e.message, 'error'));
-            });
-        }
+        if(!isLocalMode) { window.signOut = signOut; onAuthStateChanged(auth, updateAuthUI); document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value).then(() => window.closeModal('loginModal')).catch(e => showToast(e.message, 'error')); }); }
 
         function showToast(msg, type='info') {
             const t = document.createElement('div');
             const colors = type==='success'?'bg-green-500':type==='error'?'bg-red-500':'bg-blue-600';
             const icon = type==='success'?'fa-check':type==='error'?'fa-triangle-exclamation':'fa-info-circle';
-            t.className = `${colors} text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 text-sm font-bold animate-slide-in pointer-events-auto border border-white/10`;
-            t.innerHTML = `<i class="fa-solid ${icon}"></i> ${msg}`;
-            document.getElementById('toastContainer').appendChild(t);
-            setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+            t.className = `${colors} text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 text-sm font-bold animate-slide-up pointer-events-auto border border-white/10`;
+            t.innerHTML = `<i class="fa-solid ${icon}"></i> ${msg}`; document.getElementById('toastContainer').appendChild(t); setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
         }
     </script>
 </body>
