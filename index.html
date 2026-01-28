@@ -333,6 +333,107 @@
             inset: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
         }
+    
+        /* Event with image background - ENHANCED */
+        .fc-event.has-image {
+            padding: 0 !important;
+            min-height: 45px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .fc-event.has-image .fc-event-main {
+            position: relative;
+            padding: 4px 8px;
+            z-index: 2;
+        }
+        
+        .fc-event-bg-image {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.35;
+            z-index: 0;
+            filter: blur(0.5px);
+        }
+        
+        body.light-theme .fc-event-bg-image {
+            opacity: 0.25;
+        }
+        
+        .fc-event-title {
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            font-weight: 600 !important;
+        }
+        
+        body.light-theme .fc-event-title {
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+        }
+        
+        .fc-event.has-image .fc-event-title {
+            background: linear-gradient(to right, rgba(0,0,0,0.7), transparent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        body.light-theme .fc-event.has-image .fc-event-title {
+            background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
+            color: #0f172a;
+        }
+        
+        /* Favorite Star */
+        .favorite-star {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            color: #fbbf24;
+            font-size: 0.75rem;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        
+        /* Batch checkbox */
+        .batch-select-checkbox {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            z-index: 100;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #6366f1;
+        }
+        
+        .batch-mode-active {
+            outline: 2px solid #6366f1 !important;
+            outline-offset: 2px;
+            background: rgba(99, 102, 241, 0.15) !important;
+        }
+        
+        /* Theme transitions */
+        body.light-theme {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+        
+        body.light-theme .glass {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-theme .glass-light {
+            background: rgba(241, 245, 249, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
     </style>
 </head>
 <body class="text-slate-200">
@@ -381,6 +482,13 @@
                     </button>
                 </div>
                 
+                
+                <!-- Batch Mode Toggle -->
+                <button id="batch-mode-toggle" class="hidden sm:flex items-center gap-2 px-3 py-1.5 glass-light rounded-lg text-xs font-medium hover:bg-slate-600/50 transition-colors">
+                    <i class="fas fa-check-square"></i>
+                    <span>Batch</span>
+                </button>
+                
                 <!-- View Mode Toggle -->
                 <div class="hidden sm:flex items-center gap-2 mr-2">
                     <button id="view-toggle" class="glass-light px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-600/50 transition-colors flex items-center gap-2">
@@ -392,6 +500,13 @@
                 <!-- Theme Toggle -->
                 <button id="theme-toggle" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors" title="Toggle Theme">
                     <i class="fas fa-moon text-lg"></i>
+                </button>
+                
+                
+                <!-- Favorites -->
+                <button id="favorites-btn" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors relative" title="Favorites">
+                    <i class="fas fa-star text-lg"></i>
+                    <span id="favorites-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full text-xs flex items-center justify-center hidden">0</span>
                 </button>
                 
                 <!-- Notifications -->
@@ -422,6 +537,31 @@
                         Logout
                     </button>
                 </div>
+            </div>
+        </div>
+    
+        
+        <!-- Batch Actions Bar (Hidden by default) -->
+        <div id="batch-actions-bar" class="hidden mt-3 p-3 glass-light rounded-xl flex items-center justify-between animate-slideIn">
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium"><span id="selected-count">0</span> selected</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button id="batch-delete-btn" class="px-4 py-2 bg-rose-500/20 text-rose-400 rounded-lg text-sm font-medium hover:bg-rose-500/30 transition-colors">
+                    <i class="fas fa-trash mr-2"></i>Delete
+                </button>
+                <button id="batch-priority-btn" class="px-4 py-2 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors">
+                    <i class="fas fa-flag mr-2"></i>Priority
+                </button>
+                <button id="batch-category-btn" class="px-4 py-2 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors">
+                    <i class="fas fa-folder mr-2"></i>Category
+                </button>
+                <button id="batch-favorite-btn" class="px-4 py-2 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors">
+                    <i class="fas fa-star mr-2"></i>Favorite
+                </button>
+                <button id="batch-cancel-btn" class="px-4 py-2 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
             </div>
         </div>
     </nav>
@@ -1151,6 +1291,26 @@
                 <div class="text-center text-slate-400 py-4 text-sm">Start typing to search...</div>
             </div>
         </div>
+    </div>
+
+    
+    
+    <!-- Floating Action Button -->
+    <div class="fab" id="fab-main" title="Quick Add">
+        <i class="fas fa-plus text-white text-xl"></i>
+    </div>
+    
+    <!-- FAB Menu (Hidden by default) -->
+    <div id="fab-menu" class="fab-menu hidden">
+        <button class="fab-action glass" title="Add from Template" onclick="document.getElementById('quick-template-btn').click()">
+            <i class="fas fa-magic text-indigo-400"></i>
+        </button>
+        <button class="fab-action glass" title="Quick Add" onclick="document.getElementById('add-event-btn').click()">
+            <i class="fas fa-bolt text-amber-400"></i>
+        </button>
+        <button class="fab-action glass" title="Import" onclick="document.getElementById('import-btn').click()">
+            <i class="fas fa-upload text-emerald-400"></i>
+        </button>
     </div>
 
     <script type="module">
@@ -3010,6 +3170,483 @@
             }
         }
         
+        
+        
+        // ============================================
+        // BATCH OPERATIONS & ENHANCED FEATURES
+        // ============================================
+        let batchMode = false;
+        let selectedEvents = new Set();
+        let trashedEvents = [];
+        let recentlyViewed = [];
+        let undoStack = [];
+        
+        // Load saved data
+        function loadEnhancedData() {
+            const storedTrash = localStorage.getItem('trashedEvents');
+            if (storedTrash) {
+                trashedEvents = JSON.parse(storedTrash);
+            }
+            
+            const storedRecent = localStorage.getItem('recentlyViewed');
+            if (storedRecent) {
+                recentlyViewed = JSON.parse(storedRecent);
+            }
+            
+            // Load theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                document.querySelector('#theme-toggle i').className = 'fas fa-sun text-lg';
+            }
+        }
+        
+        // ============================================
+        // Enhanced Calendar with Image Tiles
+        // ============================================
+        const originalInitCalendar = initCalendar;
+        initCalendar = function() {
+            const calendarEl = document.getElementById('calendar');
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth,multiMonthYear'
+                },
+                views: {
+                    multiMonthYear: {
+                        type: 'multiMonth',
+                        duration: { years: 1 }
+                    }
+                },
+                events: [],
+                eventClick: handleEventClick,
+                dateClick: handleDateClick,
+                editable: !batchMode,
+                eventDrop: handleEventDrop,
+                eventResize: handleEventResize,
+                height: 'auto',
+                dayMaxEvents: 3,
+                moreLinkClick: 'popover',
+                nowIndicator: true,
+                navLinks: true,
+                businessHours: false,
+                eventDidMount: function(info) {
+                    const event = info.event;
+                    const el = info.el;
+                    
+                    // Add image as background if available
+                    if (event.extendedProps.image) {
+                        el.classList.add('has-image');
+                        
+                        const imgBg = document.createElement('div');
+                        imgBg.className = 'fc-event-bg-image';
+                        imgBg.style.backgroundImage = `url(${event.extendedProps.image})`;
+                        el.prepend(imgBg);
+                        
+                        const titleEl = el.querySelector('.fc-event-title');
+                        if (titleEl) {
+                            titleEl.style.position = 'relative';
+                            titleEl.style.zIndex = '2';
+                        }
+                    }
+                    
+                    // Add favorite star
+                    if (event.extendedProps.favorite) {
+                        const star = document.createElement('i');
+                        star.className = 'fas fa-star favorite-star';
+                        el.appendChild(star);
+                    }
+                    
+                    // Add priority border
+                    if (event.extendedProps.priority) {
+                        el.classList.add('priority-' + event.extendedProps.priority);
+                    }
+                    
+                    // Add batch checkbox if in batch mode
+                    if (batchMode) {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'batch-select-checkbox';
+                        checkbox.checked = selectedEvents.has(event.id);
+                        checkbox.onclick = (e) => {
+                            e.stopPropagation();
+                            toggleEventSelection(event.id);
+                        };
+                        el.appendChild(checkbox);
+                        
+                        if (selectedEvents.has(event.id)) {
+                            el.classList.add('batch-mode-active');
+                        }
+                    }
+                    
+                    el.setAttribute('title', event.title);
+                }
+            });
+            
+            calendar.render();
+        };
+        
+        // ============================================
+        // Batch Mode Functions
+        // ============================================
+        function toggleBatchMode() {
+            batchMode = !batchMode;
+            const bar = document.getElementById('batch-actions-bar');
+            const btn = document.getElementById('batch-mode-toggle');
+            
+            if (batchMode) {
+                bar.classList.remove('hidden');
+                btn.classList.add('bg-indigo-500/30');
+                showToast('Batch mode enabled - Click events to select', 'info');
+                calendar.setOption('editable', false);
+            } else {
+                bar.classList.add('hidden');
+                btn.classList.remove('bg-indigo-500/30');
+                selectedEvents.clear();
+                updateSelectedCount();
+                calendar.setOption('editable', true);
+            }
+            
+            updateCalendar();
+        }
+        
+        function toggleEventSelection(eventId) {
+            if (selectedEvents.has(eventId)) {
+                selectedEvents.delete(eventId);
+            } else {
+                selectedEvents.add(eventId);
+            }
+            updateSelectedCount();
+            updateCalendar();
+        }
+        
+        function updateSelectedCount() {
+            const countEl = document.getElementById('selected-count');
+            if (countEl) {
+                countEl.textContent = selectedEvents.size;
+            }
+        }
+        
+        // ============================================
+        // Batch Operations
+        // ============================================
+        async function batchDelete() {
+            if (selectedEvents.size === 0) {
+                showToast('No events selected', 'warning');
+                return;
+            }
+            
+            if (!confirm(`Move ${selectedEvents.size} event(s) to trash?`)) {
+                return;
+            }
+            
+            const deleted = [];
+            for (const eventId of selectedEvents) {
+                const event = allEvents.find(e => e.id === eventId);
+                if (event) {
+                    event.trashed = true;
+                    event.trashedAt = new Date().toISOString();
+                    deleted.push({...event});
+                }
+            }
+            
+            undoStack.push({
+                action: 'batch-delete',
+                events: deleted,
+                timestamp: Date.now()
+            });
+            
+            allEvents = allEvents.filter(e => !selectedEvents.has(e.id));
+            trashedEvents.push(...deleted);
+            
+            if (useFirebase) {
+                for (const event of deleted) {
+                    await deleteEventFromFirebase(event.id);
+                }
+            } else {
+                saveLocalEvents(allEvents);
+                localStorage.setItem('trashedEvents', JSON.stringify(trashedEvents));
+            }
+            
+            showToastWithUndo(`${deleted.length} event(s) moved to trash`, 'success');
+            selectedEvents.clear();
+            toggleBatchMode();
+            applyFilters();
+        }
+        
+        async function batchChangePriority(newPriority) {
+            if (selectedEvents.size === 0) {
+                showToast('No events selected', 'warning');
+                return;
+            }
+            
+            for (const eventId of selectedEvents) {
+                const event = allEvents.find(e => e.id === eventId);
+                if (event) {
+                    event.priority = newPriority;
+                    if (useFirebase) {
+                        await updateEventInFirebase(event.id, event);
+                    }
+                }
+            }
+            
+            if (!useFirebase) {
+                saveLocalEvents(allEvents);
+            }
+            
+            showToast(`Updated ${selectedEvents.size} event(s)`, 'success');
+            selectedEvents.clear();
+            toggleBatchMode();
+            applyFilters();
+        }
+        
+        async function batchChangeCategory(newCategory) {
+            if (selectedEvents.size === 0) {
+                showToast('No events selected', 'warning');
+                return;
+            }
+            
+            for (const eventId of selectedEvents) {
+                const event = allEvents.find(e => e.id === eventId);
+                if (event) {
+                    event.category = newCategory;
+                    if (useFirebase) {
+                        await updateEventInFirebase(event.id, event);
+                    }
+                }
+            }
+            
+            if (!useFirebase) {
+                saveLocalEvents(allEvents);
+            }
+            
+            showToast(`Updated ${selectedEvents.size} event(s)`, 'success');
+            selectedEvents.clear();
+            toggleBatchMode();
+            applyFilters();
+            updateCategoryCounts();
+        }
+        
+        async function batchAddToFavorites() {
+            if (selectedEvents.size === 0) {
+                showToast('No events selected', 'warning');
+                return;
+            }
+            
+            for (const eventId of selectedEvents) {
+                const event = allEvents.find(e => e.id === eventId);
+                if (event) {
+                    event.favorite = true;
+                    if (useFirebase) {
+                        await updateEventInFirebase(event.id, event);
+                    }
+                }
+            }
+            
+            if (!useFirebase) {
+                saveLocalEvents(allEvents);
+            }
+            
+            showToast(`Added ${selectedEvents.size} event(s) to favorites`, 'success');
+            selectedEvents.clear();
+            toggleBatchMode();
+            applyFilters();
+            updateFavoritesCount();
+        }
+        
+        // ============================================
+        // Favorites System
+        // ============================================
+        async function toggleFavorite(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (!event) return;
+            
+            event.favorite = !event.favorite;
+            
+            if (useFirebase) {
+                await updateEventInFirebase(event.id, event);
+            } else {
+                saveLocalEvents(allEvents);
+            }
+            
+            showToast(event.favorite ? 'Added to favorites' : 'Removed from favorites', 'success');
+            updateFavoritesCount();
+            updateCalendar();
+        }
+        
+        function updateFavoritesCount() {
+            const count = allEvents.filter(e => e.favorite && !e.trashed).length;
+            const badge = document.getElementById('favorites-badge');
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+        
+        // ============================================
+        // Theme Toggle
+        // ============================================
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('#theme-toggle i');
+            
+            if (body.classList.contains('light-theme')) {
+                body.classList.remove('light-theme');
+                icon.className = 'fas fa-moon text-lg';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-theme');
+                icon.className = 'fas fa-sun text-lg';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // ============================================
+        // Toast with Undo
+        // ============================================
+        function showToastWithUndo(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = 'toast glass rounded-xl px-4 py-3 flex items-center justify-between gap-4 min-w-[320px]';
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-emerald-400"></i>
+                    <span class="text-sm">${message}</span>
+                </div>
+                <button onclick="performUndo()" class="px-3 py-1 bg-indigo-500/30 rounded-lg text-xs font-medium hover:bg-indigo-500/50 transition-colors">
+                    Undo
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+                undoStack = [];
+            }, 5000);
+        }
+        
+        async function performUndo() {
+            if (undoStack.length === 0) return;
+            
+            const action = undoStack.pop();
+            
+            if (action.action === 'batch-delete') {
+                for (const event of action.events) {
+                    delete event.trashed;
+                    delete event.trashedAt;
+                    allEvents.push(event);
+                }
+                trashedEvents = trashedEvents.filter(e => !action.events.find(ae => ae.id === e.id));
+                
+                if (useFirebase) {
+                    for (const event of action.events) {
+                        await addEventToFirebase(event);
+                    }
+                } else {
+                    saveLocalEvents(allEvents);
+                    localStorage.setItem('trashedEvents', JSON.stringify(trashedEvents));
+                }
+                
+                showToast(`Restored ${action.events.length} event(s)`, 'success');
+                applyFilters();
+            }
+        }
+        
+        window.performUndo = performUndo;
+        
+        window.batchDeleteHandler = batchDelete;
+
+        
+        // ============================================
+        // Enhanced Event Listeners
+        // ============================================
+        const originalInit = init;
+        init = async function() {
+            loadEnhancedData();
+            await originalInit();
+            
+            // Batch mode toggle
+            const batchToggle = document.getElementById('batch-mode-toggle');
+            if (batchToggle) {
+                batchToggle.addEventListener('click', toggleBatchMode);
+            }
+            
+            // Batch actions
+            const batchDelete = document.getElementById('batch-delete-btn');
+            if (batchDelete) {
+                batchDelete.addEventListener('click', async () => { await window.batchDeleteHandler(); });
+            }
+            
+            const batchCancel = document.getElementById('batch-cancel-btn');
+            if (batchCancel) {
+                batchCancel.addEventListener('click', toggleBatchMode);
+            }
+            
+            const batchPriority = document.getElementById('batch-priority-btn');
+            if (batchPriority) {
+                batchPriority.addEventListener('click', () => {
+                    const priority = prompt('Enter new priority (critical/high/medium/low):');
+                    if (priority && ['critical', 'high', 'medium', 'low'].includes(priority)) {
+                        batchChangePriority(priority);
+                    }
+                });
+            }
+            
+            const batchCategory = document.getElementById('batch-category-btn');
+            if (batchCategory) {
+                batchCategory.addEventListener('click', () => {
+                    const category = prompt('Enter new category (Video Games/Movies/Sports/Music/Tech/TV Shows/Books/Other):');
+                    if (category) {
+                        batchChangeCategory(category);
+                    }
+                });
+            }
+            
+            const batchFavorite = document.getElementById('batch-favorite-btn');
+            if (batchFavorite) {
+                batchFavorite.addEventListener('click', batchAddToFavorites);
+            }
+            
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.target.matches('input, textarea')) return;
+                
+                if (e.key === 'b' || e.key === 'B') {
+                    e.preventDefault();
+                    toggleBatchMode();
+                }
+                
+                if (e.key === 'Delete' && batchMode && selectedEvents.size > 0) {
+                    e.preventDefault();
+                    batchDelete();
+                }
+            });
+            
+            // Update favorites count
+            updateFavoritesCount();
+            
+            console.log('✅ Enhanced features loaded!');
+            console.log('📋 Press B for batch mode');
+            console.log('🖼️ Images will display on calendar tiles');
+            console.log('🎨 Theme toggle enabled');
+        };
+
         // Start the application
         init();
     </script>
