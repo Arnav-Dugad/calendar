@@ -2,670 +2,3016 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Global Release Calendar v11 (Fixed)</title>
-
-    <!-- 1. EXTERNAL LIBRARIES -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Release Calendar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        game: '#8b5cf6', movie: '#f43f5e', sport: '#10b981', tv: '#f59e0b',
-                        dark: '#020617', 
-                        glass: 'rgba(15, 23, 42, 0.75)',
-                        glassBorder: 'rgba(255, 255, 255, 0.08)'
-                    },
-                    animation: { 
-                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'pulse-glow': 'pulseGlow 3s infinite'
-                    },
-                    keyframes: {
-                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
-                        pulseGlow: { '0%, 100%': { opacity: '1', boxShadow: '0 0 10px rgba(59, 130, 246, 0.2)' }, '50%': { opacity: '0.7', boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' } }
-                    }
-                }
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #0f172a;
+            min-height: 100vh;
+        }
+        
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-light {
+            background: rgba(51, 65, 85, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.8);
+        }
+        
+        /* FullCalendar Custom Styles */
+        .fc {
+            --fc-border-color: rgba(255, 255, 255, 0.1);
+            --fc-button-bg-color: rgba(51, 65, 85, 0.5);
+            --fc-button-border-color: rgba(255, 255, 255, 0.1);
+            --fc-button-hover-bg-color: rgba(71, 85, 105, 0.7);
+            --fc-button-hover-border-color: rgba(255, 255, 255, 0.2);
+            --fc-button-active-bg-color: #6366f1;
+            --fc-button-active-border-color: #6366f1;
+            --fc-today-bg-color: rgba(99, 102, 241, 0.15);
+            --fc-page-bg-color: transparent;
+            --fc-neutral-bg-color: rgba(30, 41, 59, 0.5);
+            --fc-list-event-hover-bg-color: rgba(51, 65, 85, 0.5);
+        }
+        
+        .fc .fc-toolbar-title {
+            color: #f1f5f9;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .fc .fc-button {
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .fc .fc-button:focus {
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+        }
+        
+        .fc .fc-col-header-cell-cushion,
+        .fc .fc-daygrid-day-number,
+        .fc .fc-list-day-text,
+        .fc .fc-list-day-side-text {
+            color: #cbd5e1;
+        }
+        
+        .fc .fc-daygrid-day.fc-day-today {
+            background: rgba(99, 102, 241, 0.15);
+        }
+        
+        .fc .fc-daygrid-day:hover {
+            background: rgba(51, 65, 85, 0.3);
+        }
+        
+        .fc-event {
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        
+        .fc-event:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fc .fc-list-event:hover td {
+            background: rgba(51, 65, 85, 0.5);
+        }
+        
+        .fc .fc-list-event-title {
+            color: #f1f5f9;
+        }
+        
+        .fc .fc-list-event-time {
+            color: #94a3b8;
+        }
+        
+        /* Year Calendar Custom Styles */
+        .fc-multiMonthYear-view {
+            background: transparent !important;
+        }
+        
+        .fc-multiMonthYear-view .fc-daygrid-day {
+            font-size: 0.7rem;
+        }
+        
+        .fc-multiMonthYear-view .fc-col-header-cell {
+            font-size: 0.7rem;
+        }
+        
+        /* Animation Classes */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-    </script>
-    <!-- FullCalendar v6 -->
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <style>
-        :root { --app-bg: #020617; --fc-border-color: rgba(255,255,255,0.05); }
         
-        body { 
-            background-color: var(--app-bg); 
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.08), transparent 25%), 
-                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%);
-            color: #e2e8f0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        /* GLASS UI */
-        .glass-panel {
-            background: var(--glass); 
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glassBorder); 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-        .glass-button {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.2s;
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
-        .glass-button:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.1); }
-
-        /* CALENDAR */
-        .fc { --fc-page-bg-color: transparent; --fc-neutral-bg-color: rgba(255,255,255,0.02); }
-        .fc-theme-standard td, .fc-theme-standard th { border-color: var(--fc-border-color) !important; }
-        .fc-col-header-cell-cushion { color: #94a3b8; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; padding: 12px 0 !important; }
-        .fc-daygrid-day-number { color: #64748b; font-weight: 600; font-size: 0.8rem; padding: 6px; }
-        .fc-multimonth-title { font-size: 0.85rem; font-weight: 800; letter-spacing: 1px; color: #fff; margin-bottom: 10px; }
-        .fc-multimonth-daygrid-table { background: rgba(0,0,0,0.2) !important; border-radius: 8px; overflow: hidden; }
-
-        /* EVENTS */
-        .fc-event {
-            border: none !important; border-radius: 4px; margin: 2px !important;
-            transition: all 0.2s; overflow: hidden; cursor: pointer; position: relative;
-            background-color: var(--fc-event-bg-color); min-height: 26px;
+        
+        .animate-slideIn {
+            animation: slideIn 0.3s ease-out;
         }
-        .event-poster-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.75; z-index: 0; }
-        .event-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.2)); z-index: 1; }
-        .event-content { position: relative; z-index: 2; padding: 3px 5px; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
-        .fc-event:hover { z-index: 50; transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .hype-event { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.6); }
-
-        /* UTILS */
-        .fc-event.dimmed { opacity: 0.1; filter: grayscale(1); pointer-events: none; }
-        .selection-mode .fc-event { filter: grayscale(1) opacity(0.3); pointer-events: none; }
-        .selection-mode .fc-event.selected-event { filter: grayscale(0) opacity(1); box-shadow: 0 0 0 2px #fff; transform: scale(0.95); pointer-events: auto; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 2s infinite;
+        }
+        
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .toast-exit {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        /* Category Colors */
+        .category-games { background: #8b5cf6; }
+        .category-movies { background: #f43f5e; }
+        .category-sports { background: #10b981; }
+        .category-music { background: #f59e0b; }
+        .category-tech { background: #3b82f6; }
+        .category-tv { background: #ec4899; }
+        .category-books { background: #14b8a6; }
+        .category-other { background: #6b7280; }
+        
+        /* Priority Colors */
+        .priority-critical { border-left: 4px solid #ef4444; }
+        .priority-high { border-left: 4px solid #f59e0b; }
+        .priority-medium { border-left: 4px solid #3b82f6; }
+        .priority-low { border-left: 4px solid #10b981; }
+        
+        /* Countdown Timer */
+        .countdown-unit {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Stats Cards */
+        .stat-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.5));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Modal Backdrop */
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* Input Focus */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* Sidebar Toggle */
+        .sidebar-collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        /* Event Badge */
+        .event-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 9999px;
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.5s ease;
+        }
+        
+        /* Keyboard Shortcut Hint */
+        .kbd {
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            font-family: monospace;
+        }
+        
+        /* Image Preview */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .image-thumbnail {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        /* Color Picker */
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Timeline View */
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            padding-bottom: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.375rem;
+            top: 0;
+            bottom: -1.5rem;
+            width: 2px;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+        }
+        
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+        
+        /* Event Card with Image */
+        .event-card-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        .event-card-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+        }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden text-sm selection:bg-blue-500/30">
-
-    <!-- TOAST CONTAINER -->
-    <div id="toastContainer" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
-
-    <!-- NAVBAR -->
-    <nav class="h-14 border-b border-gray-800 flex items-center justify-between px-4 md:px-6 bg-[#020617]/90 backdrop-blur-md z-50 relative">
-        <div class="flex items-center gap-4">
-            <button onclick="window.toggleMobileSidebar()" class="md:hidden text-gray-400 hover:text-white p-1"><i class="fa-solid fa-bars text-lg"></i></button>
+<body class="text-slate-200">
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+    
+    <!-- Top Navigation -->
+    <nav class="glass fixed top-0 left-0 right-0 z-40 px-6 py-3">
+        <div class="flex items-center justify-between max-w-full">
+            <!-- Logo -->
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-calendar-days text-white text-sm"></i>
+                <button id="sidebar-toggle" class="lg:hidden p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <i class="fas fa-calendar-alt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                            Global Release Calendar
+                        </h1>
+                        <p class="text-xs text-slate-400">Track releases worldwide</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-base font-black tracking-tight text-white leading-none">RELEASE<span class="text-blue-500">CAL</span></h1>
-                    <span id="modeBadge" class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">v11 Fixed</span>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="hidden md:flex flex-1 max-w-md mx-8">
+                <div class="relative w-full">
+                    <input type="text" id="search-input" placeholder="Search events... (Ctrl+K)" 
+                        class="w-full glass-light rounded-xl px-4 py-2 pl-10 text-sm text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 transition-all">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <span class="kbd absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">⌘K</span>
+                </div>
+            </div>
+            
+            <!-- Right Side Actions -->
+            <div class="flex items-center gap-3">
+                <!-- Storage Mode Toggle -->
+                <div class="hidden sm:flex items-center gap-2 mr-2">
+                    <span class="text-xs text-slate-400">Mode:</span>
+                    <button id="storage-mode-btn" class="glass-light px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-600/50 transition-colors flex items-center gap-2">
+                        <i class="fas fa-database"></i>
+                        <span id="storage-mode-text">Local</span>
+                    </button>
+                </div>
+                
+                <!-- View Mode Toggle -->
+                <div class="hidden sm:flex items-center gap-2 mr-2">
+                    <button id="view-toggle" class="glass-light px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-600/50 transition-colors flex items-center gap-2">
+                        <i class="fas fa-th"></i>
+                        <span id="view-mode-text">Calendar</span>
+                    </button>
+                </div>
+                
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors" title="Toggle Theme">
+                    <i class="fas fa-moon text-lg"></i>
+                </button>
+                
+                <!-- Notifications -->
+                <button id="notifications-btn" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors relative" title="Notifications">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="notification-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full text-xs flex items-center justify-center hidden">0</span>
+                </button>
+                
+                <!-- Auth Buttons -->
+                <div id="auth-buttons" class="flex items-center gap-2">
+                    <button id="login-btn" class="px-4 py-2 text-sm font-medium hover:bg-slate-700/50 rounded-lg transition-colors">
+                        Login
+                    </button>
+                    <button id="signup-btn" class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all">
+                        Sign Up
+                    </button>
+                </div>
+                
+                <!-- User Menu (Hidden by default) -->
+                <div id="user-menu" class="hidden items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-user text-sm"></i>
+                        </div>
+                        <span id="user-email" class="text-sm font-medium hidden sm:block"></span>
+                    </div>
+                    <button id="logout-btn" class="px-4 py-2 text-sm font-medium bg-rose-500/20 text-rose-400 rounded-lg hover:bg-rose-500/30 transition-colors">
+                        Logout
+                    </button>
                 </div>
             </div>
         </div>
-        <div id="authButtons" class="flex gap-2"></div>
     </nav>
-
-    <!-- LAYOUT -->
-    <div class="flex flex-1 overflow-hidden relative">
-        
-        <!-- SIDEBAR -->
-        <div id="sidebarOverlay" onclick="window.toggleMobileSidebar()" class="fixed inset-0 bg-black/80 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
-        
-        <aside id="mainSidebar" class="fixed md:relative inset-y-0 left-0 w-80 bg-[#020617] md:bg-transparent border-r border-gray-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 flex flex-col h-full shadow-2xl md:shadow-none backdrop-blur-xl">
-            <!-- Countdown Widget -->
-            <div class="p-5 pb-0">
-                <div id="countdownWidget" class="hidden animate-slide-up">
-                    <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 p-4 group cursor-pointer hover:border-blue-500/30 transition shadow-lg" onclick="window.zoomToNextEvent()">
-                        <div class="flex items-center justify-between mb-3 relative z-10">
-                            <span class="text-[9px] font-bold text-blue-400 uppercase tracking-widest border border-blue-500/20 px-1.5 py-0.5 rounded bg-blue-500/5">NEXT DROP</span>
-                            <i class="fa-solid fa-clock text-gray-600 text-xs"></i>
-                        </div>
-                        <h3 id="nextEventTitle" class="text-sm font-bold text-white truncate mb-4 relative z-10 pl-1 border-l-2 border-blue-500">Loading...</h3>
-                        <div class="flex justify-between gap-1 relative z-10">
-                            <div class="text-center flex-1 bg-black/20 rounded py-1"><span class="text-lg font-black text-white block leading-none" id="cd-d">0</span><span class="text-[9px] text-gray-500 font-bold">DAYS</span></div>
-                            <div class="text-center flex-1 bg-black/20 rounded py-1"><span class="text-lg font-black text-white block leading-none" id="cd-h">0</span><span class="text-[9px] text-gray-500 font-bold">HRS</span></div>
-                            <div class="text-center flex-1 bg-black/20 rounded py-1"><span class="text-lg font-black text-white block leading-none" id="cd-m">0</span><span class="text-[9px] text-gray-500 font-bold">MIN</span></div>
-                        </div>
-                        <div id="nextEventDate" class="text-center text-[10px] text-gray-500 mt-2 font-mono relative z-10"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stats & Filters -->
-            <div class="p-5 flex flex-col gap-6 overflow-y-auto flex-1 custom-scrollbar">
-                <div>
-                    <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 flex justify-between">Library Stats</h3>
-                    <div class="space-y-3">
-                        <div onclick="window.filterCat('game')" class="group cursor-pointer">
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-gamepad text-game"></i> Games</span> <span id="count-game" class="font-mono text-gray-500">0</span></div>
-                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-game" class="h-full bg-game w-0 progress-bar-fill"></div></div>
-                        </div>
-                        <div onclick="window.filterCat('movie')" class="group cursor-pointer">
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-film text-movie"></i> Movies</span> <span id="count-movie" class="font-mono text-gray-500">0</span></div>
-                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-movie" class="h-full bg-movie w-0 progress-bar-fill"></div></div>
-                        </div>
-                        <div onclick="window.filterCat('tv')" class="group cursor-pointer">
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-tv text-tv"></i> Shows</span> <span id="count-tv" class="font-mono text-gray-500">0</span></div>
-                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-tv" class="h-full bg-tv w-0 progress-bar-fill"></div></div>
-                        </div>
-                        <div onclick="window.filterCat('sport')" class="group cursor-pointer">
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400 group-hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-trophy text-sport"></i> Sports</span> <span id="count-sport" class="font-mono text-gray-500">0</span></div>
-                            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden"><div id="bar-sport" class="h-full bg-sport w-0 progress-bar-fill"></div></div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2 mt-4">
-                        <button onclick="window.filterCat('all')" class="glass-button py-2 rounded text-[10px] font-bold text-gray-400 uppercase tracking-wide hover:text-white">All Events</button>
-                        <button onclick="window.toggleHypeOnly()" id="hypeFilterBtn" class="glass-button py-2 rounded text-[10px] font-bold text-orange-500 uppercase tracking-wide flex items-center justify-center gap-1 hover:text-orange-400"><i class="fa-solid fa-fire"></i> Hype</button>
-                    </div>
-                </div>
-
-                <div class="pt-4 mt-auto border-t border-gray-800">
-                    <button id="toggleSelectionBtn" onclick="window.toggleSelectionMode()" class="w-full py-2.5 border border-slate-700/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-slate-800/50 transition mb-2">MANAGE EVENTS</button>
-                    <button onclick="window.exportData()" class="w-full py-2.5 border border-slate-700/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-slate-800/50 transition flex items-center justify-center gap-2"><i class="fa-solid fa-download"></i> EXPORT JSON</button>
-                </div>
-            </div>
-
-            <div class="p-4 bg-slate-900/80 border-t border-gray-800 backdrop-blur">
-                <button onclick="window.openEventModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20 active:scale-95 transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-plus"></i> NEW RELEASE</button>
-            </div>
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <main class="flex-1 flex flex-col relative overflow-hidden bg-slate-900/20">
-            <!-- Control Bar -->
-            <div class="px-4 py-3 md:px-6 flex flex-col md:flex-row gap-3 items-center justify-between z-30">
-                <div class="relative w-full md:w-80 group">
-                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs group-focus-within:text-blue-500 transition"></i>
-                    <i id="clearSearchBtn" class="fa-solid fa-xmark absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs cursor-pointer hover:text-white hidden" onclick="window.clearSearch()"></i>
-                    <input type="text" id="globalSearch" placeholder="Search title, category..." class="w-full pl-9 pr-8 py-2 border border-slate-700/50 rounded-full bg-slate-900/60 backdrop-blur text-gray-200 text-xs focus:border-blue-500/50 outline-none transition shadow-lg">
+    
+    <!-- Main Layout -->
+    <div class="flex pt-16 min-h-screen">
+        <!-- Left Sidebar -->
+        <aside id="sidebar" class="glass w-72 lg:w-80 fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] overflow-y-auto transition-all duration-300 z-30 lg:z-0">
+            <div class="p-4 space-y-6">
+                <!-- Add Event Button -->
+                <button id="add-event-btn" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25">
+                    <i class="fas fa-plus"></i>
+                    Add Event
+                </button>
+                
+                <!-- Quick Actions -->
+                <div class="flex gap-2">
+                    <button id="quick-template-btn" class="flex-1 py-2 px-3 glass-light rounded-lg text-xs font-medium hover:bg-slate-600/50 transition-colors">
+                        <i class="fas fa-magic mr-1"></i>
+                        Template
+                    </button>
+                    <button id="quick-filter-btn" class="flex-1 py-2 px-3 glass-light rounded-lg text-xs font-medium hover:bg-slate-600/50 transition-colors">
+                        <i class="fas fa-filter mr-1"></i>
+                        Filters
+                    </button>
                 </div>
                 
-                <div class="flex bg-slate-900/60 backdrop-blur border border-slate-700/50 rounded-full p-1 shadow-lg">
-                    <button onclick="window.changeView('multiMonthYear')" class="px-4 py-1.5 rounded-full text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition" id="btnYear">YEAR</button>
-                    <button onclick="window.changeView('dayGridMonth')" class="px-4 py-1.5 rounded-full text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition" id="btnMonth">MONTH</button>
-                    <button onclick="window.changeView('listMonth')" class="px-4 py-1.5 rounded-full text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/5 transition" id="btnList">LIST</button>
+                <!-- Quick Stats -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Quick Stats</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div id="total-events" class="text-2xl font-bold text-indigo-400">0</div>
+                            <div class="text-xs text-slate-400">Total Events</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div id="upcoming-count" class="text-2xl font-bold text-emerald-400">0</div>
+                            <div class="text-xs text-slate-400">Upcoming</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div id="this-month" class="text-2xl font-bold text-purple-400">0</div>
+                            <div class="text-xs text-slate-400">This Month</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div id="this-week" class="text-2xl font-bold text-rose-400">0</div>
+                            <div class="text-xs text-slate-400">This Week</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Filters -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Advanced Filters</h3>
+                    
+                    <!-- Priority Filter -->
+                    <div class="space-y-2">
+                        <label class="text-xs text-slate-400">Priority</label>
+                        <select id="priority-filter" class="w-full glass-light rounded-lg px-3 py-2 text-sm text-slate-200 bg-slate-800">
+                            <option value="all">All Priorities</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Date Range Filter -->
+                    <div class="space-y-2">
+                        <label class="text-xs text-slate-400">Date Range</label>
+                        <select id="date-range-filter" class="w-full glass-light rounded-lg px-3 py-2 text-sm text-slate-200 bg-slate-800">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Custom Date Range (Hidden by default) -->
+                    <div id="custom-date-range" class="space-y-2 hidden">
+                        <input type="date" id="filter-start-date" class="w-full glass-light rounded-lg px-3 py-2 text-sm text-slate-200">
+                        <input type="date" id="filter-end-date" class="w-full glass-light rounded-lg px-3 py-2 text-sm text-slate-200">
+                    </div>
+                </div>
+                
+                <!-- Categories Filter -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Categories</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-indigo-500" value="all" checked>
+                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></span>
+                            <span class="text-sm">All Categories</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-violet-500" value="Video Games" checked>
+                            <span class="w-3 h-3 rounded-full category-games"></span>
+                            <span class="text-sm">Video Games</span>
+                            <span id="count-games" class="ml-auto text-xs text-slate-400 event-badge bg-violet-500/20">0</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-rose-500" value="Movies" checked>
+                            <span class="w-3 h-3 rounded-full category-movies"></span>
+                            <span class="text-sm">Movies</span>
+                            <span id="count-movies" class="ml-auto text-xs text-slate-400 event-badge bg-rose-500/20">0</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-emerald-500" value="Sports" checked>
+                            <span class="w-3 h-3 rounded-full category-sports"></span>
+                            <span class="text-sm">Sports</span>
+                            <span id="count-sports" class="ml-auto text-xs text-slate-400 event-badge bg-emerald-500/20">0</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-amber-500" value="Music" checked>
+                            <span class="w-3 h-3 rounded-full category-music"></span>
+                            <span class="text-sm">Music</span>
+                            <span id="count-music" class="ml-auto text-xs text-slate-400 event-badge bg-amber-500/20">0</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-blue-500" value="Tech" checked>
+                            <span class="w-3 h-3 rounded-full category-tech"></span>
+                            <span class="text-sm">Tech</span>
+                            <span id="count-tech" class="ml-auto text-xs text-slate-400 event-badge bg-blue-500/20">0</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-pink-500" value="TV Shows" checked>
+                            <span class="w-3 h-3 rounded-full category-tv"></span>
+                            <span class="text-sm">TV Shows</span>
+                            <span id="count-tv" class="ml-auto text-xs text-slate-400 event-badge bg-pink-500/20">0</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-teal-500" value="Books" checked>
+                            <span class="w-3 h-3 rounded-full category-books"></span>
+                            <span class="text-sm">Books</span>
+                            <span id="count-books" class="ml-auto text-xs text-slate-400 event-badge bg-teal-500/20">0</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/30 cursor-pointer transition-colors">
+                            <input type="checkbox" class="category-filter w-4 h-4 rounded accent-gray-500" value="Other" checked>
+                            <span class="w-3 h-3 rounded-full category-other"></span>
+                            <span class="text-sm">Other</span>
+                            <span id="count-other" class="ml-auto text-xs text-slate-400 event-badge bg-gray-500/20">0</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Events -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Upcoming Events</h3>
+                    <div id="upcoming-events" class="space-y-2 max-h-64 overflow-y-auto">
+                        <div class="text-sm text-slate-500 text-center py-4">No upcoming events</div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Actions</h3>
+                    <div class="space-y-2">
+                        <button id="export-btn" class="w-full py-2 px-4 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors flex items-center gap-2">
+                            <i class="fas fa-download"></i>
+                            Export to ICS
+                        </button>
+                        <button id="import-btn" class="w-full py-2 px-4 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors flex items-center gap-2">
+                            <i class="fas fa-upload"></i>
+                            Import Events
+                        </button>
+                        <button id="share-btn" class="w-full py-2 px-4 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors flex items-center gap-2">
+                            <i class="fas fa-share-alt"></i>
+                            Share Calendar
+                        </button>
+                        <button id="stats-btn" class="w-full py-2 px-4 glass-light rounded-lg text-sm font-medium hover:bg-slate-600/50 transition-colors flex items-center gap-2">
+                            <i class="fas fa-chart-bar"></i>
+                            View Statistics
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Keyboard Shortcuts -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Keyboard Shortcuts</h3>
+                    <div class="text-xs text-slate-400 space-y-1">
+                        <div class="flex justify-between"><span>Search</span><span class="kbd">Ctrl+K</span></div>
+                        <div class="flex justify-between"><span>Add Event</span><span class="kbd">Ctrl+N</span></div>
+                        <div class="flex justify-between"><span>Today</span><span class="kbd">T</span></div>
+                        <div class="flex justify-between"><span>Month View</span><span class="kbd">M</span></div>
+                        <div class="flex justify-between"><span>Week View</span><span class="kbd">W</span></div>
+                        <div class="flex justify-between"><span>Year View</span><span class="kbd">Y</span></div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Calendar -->
-            <div class="flex-1 overflow-y-auto px-2 pb-2 md:px-6 md:pb-6 custom-scrollbar">
-                <div id="calendar" class="h-full w-full glass-panel rounded-2xl p-1 md:p-4"></div>
+        </aside>
+        
+        <!-- Sidebar Overlay for Mobile -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 p-4 lg:p-6 lg:ml-0">
+            <!-- Next Event Countdown -->
+            <div id="countdown-section" class="glass rounded-2xl p-4 mb-6 hidden">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-bounce-slow">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm text-slate-400">Next Release</div>
+                            <div id="next-event-title" class="text-lg font-bold"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="countdown-unit rounded-lg px-4 py-2 text-center">
+                            <div id="countdown-days" class="text-2xl font-bold text-indigo-400">00</div>
+                            <div class="text-xs text-slate-400">Days</div>
+                        </div>
+                        <div class="countdown-unit rounded-lg px-4 py-2 text-center">
+                            <div id="countdown-hours" class="text-2xl font-bold text-purple-400">00</div>
+                            <div class="text-xs text-slate-400">Hours</div>
+                        </div>
+                        <div class="countdown-unit rounded-lg px-4 py-2 text-center">
+                            <div id="countdown-mins" class="text-2xl font-bold text-pink-400">00</div>
+                            <div class="text-xs text-slate-400">Mins</div>
+                        </div>
+                        <div class="countdown-unit rounded-lg px-4 py-2 text-center">
+                            <div id="countdown-secs" class="text-2xl font-bold text-rose-400">00</div>
+                            <div class="text-xs text-slate-400">Secs</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <!-- Bulk Delete -->
-            <button id="bulkDeleteFab" onclick="window.deleteSelectedEvents()" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-red-600 text-white px-6 py-3.5 rounded-full shadow-2xl font-bold flex items-center gap-3 z-50 transform translate-y-32 transition-transform duration-300 hover:bg-red-500 border border-red-400">
-                <i class="fa-solid fa-trash"></i> <span class="text-xs">DELETE <span id="bulkDeleteCount">0</span></span>
-            </button>
+            <!-- Calendar Container -->
+            <div id="calendar-container" class="glass rounded-2xl p-4 lg:p-6">
+                <div id="calendar" class="min-h-[600px]"></div>
+            </div>
+            
+            <!-- Timeline View (Hidden by default) -->
+            <div id="timeline-view" class="glass rounded-2xl p-4 lg:p-6 hidden">
+                <div class="mb-4">
+                    <h2 class="text-2xl font-bold mb-2">Timeline View</h2>
+                    <p class="text-sm text-slate-400">Chronological list of all events</p>
+                </div>
+                <div id="timeline-content" class="space-y-0">
+                    <!-- Timeline items will be inserted here -->
+                </div>
+            </div>
         </main>
     </div>
-
-    <!-- MODAL: ADD/EDIT EVENT -->
-    <div id="eventModal" class="fixed inset-0 z-[60] hidden bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4 transition-opacity duration-300">
-        <div class="glass-panel w-full max-w-lg p-6 rounded-t-2xl md:rounded-2xl relative transform transition-transform duration-300 translate-y-full md:translate-y-0 opacity-0 md:opacity-100 flex flex-col max-h-[90vh] overflow-y-auto border border-gray-700/50 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="modalTitle" class="text-lg font-black text-white tracking-wide">NEW RELEASE</h2>
-                <button onclick="window.closeModal('eventModal')" class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+    
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="glass rounded-2xl p-6 w-full max-w-md mx-4 animate-slideIn">
+            <div class="flex items-center justify-between mb-6">
+                <h2 id="auth-modal-title" class="text-xl font-bold">Login</h2>
+                <button id="close-auth-modal" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form id="addEventForm" class="space-y-4">
-                <input type="hidden" id="evId"> 
+            <form id="auth-form" class="space-y-4">
                 <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Title</label>
-                    <input type="text" id="evTitle" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="auth-email" required
+                        class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400"
+                        placeholder="Enter your email">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Date</label>
-                        <input type="date" id="evDate" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="auth-password" required minlength="6"
+                        class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400"
+                        placeholder="Enter your password">
+                </div>
+                <div id="auth-error" class="text-rose-400 text-sm hidden"></div>
+                <button type="submit" id="auth-submit" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all">
+                    Login
+                </button>
+            </form>
+            <div class="mt-4 text-center text-sm text-slate-400">
+                <span id="auth-switch-text">Don't have an account?</span>
+                <button id="auth-switch-btn" class="text-indigo-400 hover:underline ml-1">Sign Up</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Event Modal -->
+    <div id="event-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="glass rounded-2xl p-6 w-full max-w-2xl mx-4 animate-slideIn max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 id="event-modal-title" class="text-xl font-bold">Add New Event</h2>
+                <button id="close-event-modal" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="event-form" class="space-y-4">
+                <input type="hidden" id="event-id">
+                
+                <!-- Title and Priority -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-2">Event Title *</label>
+                        <input type="text" id="event-title" required
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400"
+                            placeholder="e.g., GTA 6 Release">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Category</label>
-                        <select id="evCategory" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs appearance-none">
-                            <option value="game">Video Game</option>
-                            <option value="movie">Movie</option>
-                            <option value="tv">TV Show</option>
-                            <option value="sport">Sport</option>
+                        <label class="block text-sm font-medium mb-2">Priority</label>
+                        <select id="event-priority"
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 bg-slate-800">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Platform / Network</label>
-                    <input type="text" id="evSub" placeholder="e.g. Steam, Netflix" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
-                </div>
+                
+                <!-- Date and Time -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Image URL</label>
-                        <input type="url" id="evImage" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
+                        <label class="block text-sm font-medium mb-2">Start Date *</label>
+                        <input type="date" id="event-date" required
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-1 block">Link URL</label>
-                        <input type="url" id="evLink" placeholder="Official Link..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none text-xs">
+                        <label class="block text-sm font-medium mb-2">End Date</label>
+                        <input type="date" id="event-end-date"
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200">
                     </div>
                 </div>
-                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/5 cursor-pointer hover:bg-white/10 transition" onclick="document.getElementById('evHype').click()">
-                    <input type="checkbox" id="evHype" class="w-4 h-4 rounded bg-slate-700 accent-blue-600">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-white">High Priority (Hype)</span>
-                        <span class="text-[9px] text-gray-400">Adds special glow to event card</span>
-                    </div>
-                    <i class="fa-solid fa-fire text-orange-500 ml-auto animate-pulse"></i>
-                </div>
-                <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3.5 rounded-lg font-bold text-sm mt-2 shadow-lg shadow-blue-600/20">SAVE EVENT</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: DETAILS -->
-    <div id="detailsModal" class="fixed inset-0 z-[60] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="glass-panel w-full max-w-md rounded-2xl relative transform transition-all scale-95 opacity-0 overflow-hidden border border-gray-700 shadow-2xl">
-            <div id="detImageContainer" class="h-64 w-full bg-slate-800 bg-cover bg-center hidden relative">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent"></div>
-                <button onclick="window.closeModal('detailsModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-white rounded-full w-8 h-8 flex items-center justify-center backdrop-blur"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <button id="detCloseNoImg" onclick="window.closeModal('detailsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white hidden"><i class="fa-solid fa-xmark text-xl"></i></button>
-
-            <div class="p-6 pt-2 text-center relative">
-                <div id="detColor" class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl shadow-xl border-2 border-white/10 -mt-8 relative z-10 bg-slate-900 transition-transform hover:scale-110"></div>
-                <h2 id="detTitle" class="text-2xl font-black text-white mb-1 leading-tight mt-2 drop-shadow-lg"></h2>
                 
-                <div class="flex items-center justify-center gap-2 mb-6">
-                    <span id="detBadge" class="hidden text-[9px] bg-orange-500/10 text-orange-400 border border-orange-500/50 px-2 py-0.5 rounded uppercase font-bold tracking-wider">HYPE</span>
-                    <span id="detSub" class="text-[10px] text-blue-400 uppercase tracking-widest font-bold"></span>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Time (Optional)</label>
+                        <input type="time" id="event-time"
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Custom Color</label>
+                        <input type="color" id="event-color"
+                            class="w-full glass-light rounded-xl px-2 py-1 text-slate-200">
+                    </div>
                 </div>
-                <div class="bg-slate-800/50 rounded-lg p-3 mb-6 border border-slate-700/50 flex items-center justify-center gap-3">
-                    <i class="fa-regular fa-calendar-check text-gray-400"></i>
-                    <span id="detDate" class="text-sm font-mono text-white font-bold"></span>
+                
+                <!-- Category and Subcategory -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Category *</label>
+                        <select id="event-category" required
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 bg-slate-800">
+                            <option value="">Select category</option>
+                            <option value="Video Games">Video Games</option>
+                            <option value="Movies">Movies</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Music">Music</option>
+                            <option value="Tech">Tech</option>
+                            <option value="TV Shows">TV Shows</option>
+                            <option value="Books">Books</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Sub Category</label>
+                        <input type="text" id="event-subcategory"
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400"
+                            placeholder="e.g., Action RPG">
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <a id="detLinkBtn" href="#" target="_blank" class="col-span-2 hidden bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-white py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 border border-blue-500/20">VISIT LINK</a>
-                    <button id="editEventBtn" class="bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-lg text-xs font-bold transition border border-gray-700">EDIT</button>
-                    <button id="downloadIcsBtn" class="bg-slate-800 hover:bg-slate-700 text-gray-300 py-2.5 rounded-lg text-xs font-bold transition border border-gray-700">SYNC</button>
-                    <button id="deleteEventBtn" class="col-span-2 bg-red-500/10 hover:bg-red-500/90 text-red-500 hover:text-white py-2.5 rounded-lg text-xs font-bold transition border border-red-500/20">DELETE EVENT</button>
+                
+                <!-- Image URL -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Image URL (Optional)
+                        <span class="text-xs text-slate-400 ml-2">Direct link to image</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="url" id="event-image"
+                            class="flex-1 glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400"
+                            placeholder="https://example.com/image.jpg">
+                        <button type="button" id="preview-image-btn" class="px-4 py-3 glass-light rounded-xl hover:bg-slate-600/50 transition-colors">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div id="image-preview-container" class="mt-3 hidden">
+                        <img id="image-preview" class="image-preview" alt="Event preview">
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Description</label>
+                    <textarea id="event-description" rows="3"
+                        class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400 resize-none"
+                        placeholder="Add event details..."></textarea>
+                </div>
+                
+                <!-- URL and Tags -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">URL (Optional)</label>
+                        <input type="url" id="event-url"
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400"
+                            placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Tags</label>
+                        <input type="text" id="event-tags"
+                            class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400"
+                            placeholder="Comma separated tags">
+                    </div>
+                </div>
+                
+                <!-- Additional Notes -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Additional Notes</label>
+                    <textarea id="event-notes" rows="2"
+                        class="w-full glass-light rounded-xl px-4 py-3 text-slate-200 placeholder-slate-400 resize-none"
+                        placeholder="Private notes (not visible in calendar)"></textarea>
+                </div>
+                
+                <!-- Checkboxes -->
+                <div class="flex flex-wrap items-center gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="event-reminder" class="w-4 h-4 rounded accent-indigo-500">
+                        <span class="text-sm">Set Reminder</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="event-featured" class="w-4 h-4 rounded accent-indigo-500">
+                        <span class="text-sm">Featured Event</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="event-recurring" class="w-4 h-4 rounded accent-indigo-500">
+                        <span class="text-sm">Recurring</span>
+                    </label>
+                </div>
+                
+                <!-- Recurring Options (Hidden by default) -->
+                <div id="recurring-options" class="hidden space-y-3 p-4 glass-light rounded-xl">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium mb-2">Frequency</label>
+                            <select id="recurring-frequency" class="w-full glass-light rounded-lg px-3 py-2 text-sm text-slate-200 bg-slate-800">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium mb-2">Repeat Until</label>
+                            <input type="date" id="recurring-until" class="w-full glass-light rounded-lg px-3 py-2 text-sm text-slate-200">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-3 pt-4">
+                    <button type="button" id="duplicate-event-btn" class="hidden px-4 py-3 bg-blue-500/20 text-blue-400 rounded-xl font-medium hover:bg-blue-500/30 transition-colors">
+                        <i class="fas fa-copy mr-2"></i>Duplicate
+                    </button>
+                    <button type="button" id="delete-event-btn" class="hidden px-4 py-3 bg-rose-500/20 text-rose-400 rounded-xl font-medium hover:bg-rose-500/30 transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Delete
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all">
+                        Save Event
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Event Details Modal -->
+    <div id="event-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="glass rounded-2xl p-0 w-full max-w-lg mx-4 animate-slideIn overflow-hidden">
+            <!-- Image Header (if available) -->
+            <div id="event-details-image-container" class="hidden relative h-48 event-card-image">
+                <img id="event-details-image" class="w-full h-full object-cover" alt="Event image">
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div id="event-details-category" class="event-badge px-3 py-1 rounded-full text-xs font-medium"></div>
+                        <div id="event-details-priority" class="event-badge px-3 py-1 rounded-full text-xs font-medium hidden"></div>
+                    </div>
+                    <button id="close-event-details" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <h2 id="event-details-title" class="text-2xl font-bold mb-2"></h2>
+                
+                <div id="event-details-date" class="text-slate-400 mb-4 flex items-center gap-2">
+                    <i class="fas fa-calendar"></i>
+                    <span></span>
+                </div>
+                
+                <div id="event-details-time" class="text-slate-400 mb-4 flex items-center gap-2 hidden">
+                    <i class="fas fa-clock"></i>
+                    <span></span>
+                </div>
+                
+                <div id="event-details-subcategory" class="text-slate-400 mb-4 flex items-center gap-2 hidden">
+                    <i class="fas fa-tag"></i>
+                    <span></span>
+                </div>
+                
+                <div id="event-details-description" class="text-slate-300 mb-4 hidden"></div>
+                
+                <div id="event-details-notes" class="text-slate-300 mb-4 p-3 glass-light rounded-lg hidden">
+                    <div class="text-xs text-slate-400 mb-1">Notes:</div>
+                    <div id="event-details-notes-text"></div>
+                </div>
+                
+                <div id="event-details-tags" class="flex flex-wrap gap-2 mb-4 hidden"></div>
+                
+                <div id="event-details-url" class="mb-4 hidden">
+                    <a href="#" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-2">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>Visit Website</span>
+                    </a>
+                </div>
+                
+                <div id="event-details-countdown" class="glass-light rounded-xl p-4 mb-4 hidden">
+                    <div class="text-sm text-slate-400 mb-2">Time until release</div>
+                    <div id="event-countdown-display" class="text-xl font-bold text-indigo-400"></div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button id="edit-event-details-btn" class="flex-1 py-2 glass-light rounded-xl font-medium hover:bg-slate-600/50 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </button>
+                    <button id="share-event-btn" class="flex-1 py-2 glass-light rounded-xl font-medium hover:bg-slate-600/50 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-share"></i>
+                        Share
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- MODAL: LOGIN -->
-    <div id="loginModal" class="fixed inset-0 z-[70] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-sm p-8 rounded-2xl relative">
-            <button onclick="window.closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400"><i class="fa-solid fa-xmark"></i></button>
-            <h2 class="text-xl font-black mb-6 text-center text-white">LOGIN</h2>
-            <form id="loginForm" class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="Email Address" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs">
-                <input type="password" id="loginPass" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none text-xs">
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-lg font-bold text-sm">Log In</button>
-            </form>
+    
+    <!-- Event Templates Modal -->
+    <div id="templates-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="glass rounded-2xl p-6 w-full max-w-2xl mx-4 animate-slideIn max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold">Event Templates</h2>
+                <button id="close-templates-modal" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Templates will be generated dynamically -->
+                <div class="template-card glass-light rounded-xl p-4 cursor-pointer hover:bg-slate-600/50 transition-colors" data-template="game">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                            <i class="fas fa-gamepad text-violet-400"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Video Game Release</div>
+                            <div class="text-xs text-slate-400">AAA game launch</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="template-card glass-light rounded-xl p-4 cursor-pointer hover:bg-slate-600/50 transition-colors" data-template="movie">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center">
+                            <i class="fas fa-film text-rose-400"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Movie Release</div>
+                            <div class="text-xs text-slate-400">Theater premiere</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="template-card glass-light rounded-xl p-4 cursor-pointer hover:bg-slate-600/50 transition-colors" data-template="concert">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                            <i class="fas fa-music text-amber-400"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Concert/Tour</div>
+                            <div class="text-xs text-slate-400">Live music event</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="template-card glass-light rounded-xl p-4 cursor-pointer hover:bg-slate-600/50 transition-colors" data-template="tech">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <i class="fas fa-laptop text-blue-400"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Product Launch</div>
+                            <div class="text-xs text-slate-400">Tech product release</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="template-card glass-light rounded-xl p-4 cursor-pointer hover:bg-slate-600/50 transition-colors" data-template="tv">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center">
+                            <i class="fas fa-tv text-pink-400"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">TV Show</div>
+                            <div class="text-xs text-slate-400">Season premiere/finale</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="template-card glass-light rounded-xl p-4 cursor-pointer hover:bg-slate-600/50 transition-colors" data-template="book">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-teal-500/20 flex items-center justify-center">
+                            <i class="fas fa-book text-teal-400"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Book Release</div>
+                            <div class="text-xs text-slate-400">Novel publication</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Modal -->
+    <div id="stats-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="glass rounded-2xl p-6 w-full max-w-4xl mx-4 animate-slideIn max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold">Calendar Statistics</h2>
+                <button id="close-stats-modal" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="stat-card rounded-xl p-4">
+                    <div class="text-3xl font-bold text-indigo-400 mb-1" id="stats-total">0</div>
+                    <div class="text-sm text-slate-400">Total Events</div>
+                </div>
+                <div class="stat-card rounded-xl p-4">
+                    <div class="text-3xl font-bold text-emerald-400 mb-1" id="stats-past">0</div>
+                    <div class="text-sm text-slate-400">Past Events</div>
+                </div>
+                <div class="stat-card rounded-xl p-4">
+                    <div class="text-3xl font-bold text-rose-400 mb-1" id="stats-future">0</div>
+                    <div class="text-sm text-slate-400">Future Events</div>
+                </div>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Events by Category</h3>
+                    <div id="stats-by-category" class="space-y-2">
+                        <!-- Category stats will be inserted here -->
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Events by Priority</h3>
+                    <div id="stats-by-priority" class="space-y-2">
+                        <!-- Priority stats will be inserted here -->
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Monthly Distribution</h3>
+                    <div id="stats-by-month" class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <!-- Monthly stats will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Import Modal -->
+    <div id="import-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="glass rounded-2xl p-6 w-full max-w-md mx-4 animate-slideIn">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold">Import Events</h2>
+                <button id="close-import-modal" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-indigo-500 transition-colors cursor-pointer" id="drop-zone">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 mb-3"></i>
+                    <p class="text-sm text-slate-400">Drop JSON file here or click to upload</p>
+                    <input type="file" id="import-file" accept=".json" class="hidden">
+                </div>
+                <div class="text-xs text-slate-400">
+                    <p class="font-medium mb-1">Expected JSON format:</p>
+                    <pre class="glass-light rounded-lg p-2 overflow-x-auto text-[10px]">[{
+  "title": "Event Name",
+  "date": "YYYY-MM-DD",
+  "category": "Video Games"
+}]</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notifications Panel -->
+    <div id="notifications-panel" class="fixed top-16 right-4 z-40 w-80 glass rounded-2xl hidden animate-slideIn">
+        <div class="p-4 border-b border-slate-700">
+            <div class="flex items-center justify-between">
+                <h3 class="font-semibold">Notifications</h3>
+                <button id="clear-notifications" class="text-xs text-slate-400 hover:text-white">Clear all</button>
+            </div>
+        </div>
+        <div id="notifications-list" class="max-h-80 overflow-y-auto p-2">
+            <div class="text-center text-slate-400 py-4 text-sm">No notifications</div>
+        </div>
+    </div>
+    
+    <!-- Search Results Panel -->
+    <div id="search-panel" class="fixed top-20 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl glass rounded-2xl hidden animate-slideIn mx-4">
+        <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold">Search Results</h3>
+                <button id="close-search" class="p-1 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="search-results" class="max-h-80 overflow-y-auto space-y-2">
+                <div class="text-center text-slate-400 py-4 text-sm">Start typing to search...</div>
+            </div>
         </div>
     </div>
 
-    <!-- JS LOGIC -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+        // ============================================
+        // Firebase Configuration (Replace with your values)
+        // ============================================
         const firebaseConfig = {
-            apiKey: "PASTE_API_KEY_HERE", 
-            authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-            projectId: "PASTE_PROJECT_ID",
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
-
-        let db, auth, isLocalMode = false;
-        let allEvents = [];
-        let calendar;
-        let selectionMode = false;
-        let selectedEventIds = new Set();
-        let countdownInterval;
-        let hypeOnly = false;
-        const isMobile = window.innerWidth < 768;
-
-        if (firebaseConfig.apiKey === "PASTE_API_KEY_HERE" || !firebaseConfig.apiKey) {
-            isLocalMode = true;
-        } else {
-            try { const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); } catch (e) { isLocalMode = true; }
-        }
-        document.getElementById('modeBadge').innerText = isLocalMode ? "LOCAL" : "CLOUD";
-
-        const DataService = {
-            init: (callback) => {
-                if(isLocalMode) {
-                    const localData = JSON.parse(localStorage.getItem('localEvents')) || [];
-                    callback(localData);
-                    updateAuthUI({ email: 'guest@local' });
-                } else {
-                    const q = query(collection(db, "events"));
-                    onSnapshot(q, (snapshot) => {
-                        const events = [];
-                        snapshot.forEach(doc => events.push({ id: doc.id, ...doc.data() }));
-                        callback(events);
-                    });
-                }
-            },
-            save: async (event) => {
-                try {
-                    if (event.id) {
-                        if(isLocalMode) {
-                            const current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                            const idx = current.findIndex(e => String(e.id) === String(event.id));
-                            if(idx > -1) { current[idx] = event; localStorage.setItem('localEvents', JSON.stringify(current)); location.reload(); }
-                        } else {
-                            const { id, ...data } = event;
-                            await updateDoc(doc(db, "events", String(id)), data);
-                        }
-                        showToast("Event Updated", "success");
-                    } else {
-                        if(isLocalMode) {
-                            const current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                            event.id = 'loc_' + Date.now().toString(); 
-                            current.push(event); localStorage.setItem('localEvents', JSON.stringify(current)); location.reload(); 
-                        } else {
-                            await addDoc(collection(db, "events"), event);
-                        }
-                        showToast("Event Created", "success");
-                    }
-                } catch(e) { console.error(e); showToast("Save failed", "error"); }
-            },
-            delete: async (id) => {
-                try {
-                    if(isLocalMode) {
-                        let current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                        const filtered = current.filter(e => String(e.id) !== String(id));
-                        localStorage.setItem('localEvents', JSON.stringify(filtered)); location.reload();
-                    } else {
-                        await deleteDoc(doc(db, "events", String(id)));
-                    }
-                    showToast("Event Deleted", "info");
-                } catch(e) { console.error(e); showToast("Delete failed", "error"); }
-            },
-            deleteMultiple: async (ids) => {
-                try {
-                    if(isLocalMode) {
-                        let current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                        const filtered = current.filter(e => !ids.has(String(e.id)));
-                        localStorage.setItem('localEvents', JSON.stringify(filtered)); location.reload();
-                    } else {
-                        const batch = writeBatch(db);
-                        ids.forEach(id => batch.delete(doc(db, "events", id)));
-                        await batch.commit();
-                    }
-                    showToast(`Deleted ${ids.size} events`, "info");
-                } catch(e) { console.error(e); showToast("Bulk delete failed", "error"); }
-            },
-            updateDate: async (id, newDateStr) => {
-                if(isLocalMode) {
-                    const current = JSON.parse(localStorage.getItem('localEvents')) || [];
-                    const idx = current.findIndex(e => String(e.id) === String(id));
-                    if(idx > -1) { current[idx].date = newDateStr; localStorage.setItem('localEvents', JSON.stringify(current)); }
-                } else {
-                    await updateDoc(doc(db, "events", id), { date: newDateStr });
-                }
-                showToast("Date Moved", "success");
-            }
-        };
-
-        // --- CALENDAR SETUP ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const calendarEl = document.getElementById('calendar');
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: isMobile ? 'listYear' : 'multiMonthYear',
-                multiMonthMaxColumns: 3,
-                headerToolbar: false, 
-                height: '100%',
-                themeSystem: 'standard',
-                editable: true,
-                droppable: true,
-                events: [],
-                eventClick: handleEventClick,
-                eventDrop: (info) => DataService.updateDate(info.event.id, info.event.start.toISOString().split('T')[0]),
+        
+        // ============================================
+        // Storage Mode & Firebase Initialization
+        // ============================================
+        let useFirebase = false;
+        let firebaseApp = null;
+        let auth = null;
+        let db = null;
+        
+        // Check if Firebase config is valid
+        const isFirebaseConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY" && 
+                                     firebaseConfig.projectId !== "YOUR_PROJECT_ID";
+        
+        if (isFirebaseConfigured) {
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+                const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+                const { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
                 
-                eventContent: function(arg) {
-                    const props = arg.event.extendedProps;
-                    if (arg.view.type !== 'listYear' && arg.view.type !== 'listMonth') {
-                        let bgStyle = props.img ? `background-image:url('${props.img}')` : '';
-                        let posterDiv = props.img ? `<div class="event-poster-bg" style="${bgStyle}"></div>` : `<div class="event-poster-bg" style="background:linear-gradient(45deg, ${arg.event.backgroundColor}, #1e293b)"></div>`;
-                        
-                        return { html: `
-                            ${posterDiv}
-                            <div class="event-overlay"></div>
-                            <div class="event-content">
-                                <div class="font-bold text-white text-[9px] leading-tight drop-shadow-md truncate">${arg.event.title}</div>
-                                ${props.isHype ? '<i class="fa-solid fa-fire text-orange-400 text-[8px] mt-1 animate-pulse"></i>' : ''}
-                            </div>` 
-                        };
+                firebaseApp = initializeApp(firebaseConfig);
+                auth = getAuth(firebaseApp);
+                db = getFirestore(firebaseApp);
+                useFirebase = true;
+                
+                // Make Firebase functions available globally
+                window.firebaseAuth = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged };
+                window.firebaseDB = { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, orderBy };
+                
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.warn('Firebase initialization failed, using local storage:', error);
+                useFirebase = false;
+            }
+        } else {
+            console.log('Firebase not configured, using local storage mode');
+        }
+        
+        // ============================================
+        // Global State
+        // ============================================
+        let allEvents = [];
+        let filteredEvents = [];
+        let calendar = null;
+        let currentUser = null;
+        let currentEditEvent = null;
+        let countdownInterval = null;
+        let currentView = 'calendar'; // 'calendar' or 'timeline'
+        
+        // Category Colors
+        const categoryColors = {
+            'Video Games': '#8b5cf6',
+            'Movies': '#f43f5e',
+            'Sports': '#10b981',
+            'Music': '#f59e0b',
+            'Tech': '#3b82f6',
+            'TV Shows': '#ec4899',
+            'Books': '#14b8a6',
+            'Other': '#6b7280'
+        };
+        
+        // Priority Colors
+        const priorityColors = {
+            'critical': '#ef4444',
+            'high': '#f59e0b',
+            'medium': '#3b82f6',
+            'low': '#10b981'
+        };
+        
+        // ============================================
+        // Local Storage Functions
+        // ============================================
+        function getLocalEvents() {
+            const stored = localStorage.getItem('globalReleaseCalendar_events');
+            return stored ? JSON.parse(stored) : getSampleEvents();
+        }
+        
+        function saveLocalEvents(events) {
+            localStorage.setItem('globalReleaseCalendar_events', JSON.stringify(events));
+        }
+        
+        function generateId() {
+            return 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        function getSampleEvents() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            
+            return [
+                { 
+                    id: generateId(), 
+                    title: 'GTA 6', 
+                    date: `${year}-${String(month + 2).padStart(2, '0')}-15`, 
+                    category: 'Video Games', 
+                    subCategory: 'Action', 
+                    description: 'Highly anticipated open-world game from Rockstar Games', 
+                    featured: true,
+                    priority: 'critical',
+                    image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'The Elder Scrolls VI', 
+                    date: `${year}-${String(month + 3).padStart(2, '0')}-20`, 
+                    category: 'Video Games', 
+                    subCategory: 'RPG', 
+                    description: 'Next installment in the legendary RPG series',
+                    priority: 'high'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'Avatar 3', 
+                    date: `${year}-${String(month + 2).padStart(2, '0')}-10`, 
+                    category: 'Movies', 
+                    subCategory: 'Sci-Fi', 
+                    description: 'Third film in the Avatar franchise', 
+                    featured: true,
+                    priority: 'high',
+                    image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=800'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'Dune: Part Three', 
+                    date: `${year}-${String(month + 4).padStart(2, '0')}-05`, 
+                    category: 'Movies', 
+                    subCategory: 'Sci-Fi', 
+                    description: 'Final chapter of the Dune trilogy',
+                    priority: 'medium'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'Super Bowl LX', 
+                    date: `${year + 1}-02-08`, 
+                    category: 'Sports', 
+                    subCategory: 'Football', 
+                    description: 'Annual NFL championship game',
+                    priority: 'high'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'FIFA World Cup 2026', 
+                    date: '2026-06-11', 
+                    category: 'Sports', 
+                    subCategory: 'Soccer', 
+                    description: 'International football tournament hosted by USA, Canada, and Mexico', 
+                    featured: true,
+                    priority: 'critical',
+                    image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'Coldplay - Moon Music Tour', 
+                    date: `${year}-${String(month + 1).padStart(2, '0')}-25`, 
+                    category: 'Music', 
+                    subCategory: 'Concert', 
+                    description: 'World tour for their new album',
+                    priority: 'medium'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'Apple WWDC 2025', 
+                    date: '2025-06-02', 
+                    category: 'Tech', 
+                    subCategory: 'Conference', 
+                    description: 'Apple Worldwide Developers Conference',
+                    priority: 'high'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'iPhone 17 Launch', 
+                    date: `${year}-09-15`, 
+                    category: 'Tech', 
+                    subCategory: 'Product Launch', 
+                    description: 'Next generation iPhone announcement',
+                    priority: 'high',
+                    image: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'Stranger Things Season 5', 
+                    date: `${year}-${String(month + 2).padStart(2, '0')}-28`, 
+                    category: 'TV Shows', 
+                    subCategory: 'Drama', 
+                    description: 'Final season of the hit Netflix series', 
+                    featured: true,
+                    priority: 'high'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'The Last of Us Season 3', 
+                    date: `${year}-${String(month + 3).padStart(2, '0')}-12`, 
+                    category: 'TV Shows', 
+                    subCategory: 'Drama', 
+                    description: 'HBO adaptation continues',
+                    priority: 'medium'
+                },
+                { 
+                    id: generateId(), 
+                    title: 'Winds of Winter', 
+                    date: `${year}-${String(month + 5).padStart(2, '0')}-01`, 
+                    category: 'Books', 
+                    subCategory: 'Fantasy', 
+                    description: 'George R.R. Martin\'s next book in A Song of Ice and Fire',
+                    priority: 'critical'
+                },
+            ];
+        }
+        
+        // ============================================
+        // Firebase Database Functions
+        // ============================================
+        async function fetchEventsFromFirebase() {
+            if (!useFirebase || !db) return [];
+            
+            try {
+                const { collection, getDocs, query, orderBy } = window.firebaseDB;
+                const q = query(collection(db, 'events'), orderBy('date'));
+                const snapshot = await getDocs(q);
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error('Error fetching events from Firebase:', error);
+                return [];
+            }
+        }
+        
+        async function addEventToFirebase(eventData) {
+            if (!useFirebase || !db) return null;
+            
+            try {
+                const { collection, addDoc } = window.firebaseDB;
+                const docRef = await addDoc(collection(db, 'events'), eventData);
+                return docRef.id;
+            } catch (error) {
+                console.error('Error adding event to Firebase:', error);
+                return null;
+            }
+        }
+        
+        async function updateEventInFirebase(eventId, eventData) {
+            if (!useFirebase || !db) return false;
+            
+            try {
+                const { doc, updateDoc } = window.firebaseDB;
+                await updateDoc(doc(db, 'events', eventId), eventData);
+                return true;
+            } catch (error) {
+                console.error('Error updating event in Firebase:', error);
+                return false;
+            }
+        }
+        
+        async function deleteEventFromFirebase(eventId) {
+            if (!useFirebase || !db) return false;
+            
+            try {
+                const { doc, deleteDoc } = window.firebaseDB;
+                await deleteDoc(doc(db, 'events', eventId));
+                return true;
+            } catch (error) {
+                console.error('Error deleting event from Firebase:', error);
+                return false;
+            }
+        }
+        
+        // ============================================
+        // Event Management Functions
+        // ============================================
+        async function loadEvents() {
+            if (useFirebase) {
+                allEvents = await fetchEventsFromFirebase();
+                if (allEvents.length === 0) {
+                    // If Firebase is empty, add sample events
+                    const samples = getSampleEvents();
+                    for (const event of samples) {
+                        const { id, ...eventData } = event;
+                        const newId = await addEventToFirebase(eventData);
+                        if (newId) allEvents.push({ id: newId, ...eventData });
+                    }
+                }
+            } else {
+                allEvents = getLocalEvents();
+            }
+            
+            filteredEvents = [...allEvents];
+            updateCalendar();
+            updateStats();
+            updateUpcomingEvents();
+            updateCountdown();
+            updateCategoryCounts();
+            if (currentView === 'timeline') {
+                updateTimelineView();
+            }
+        }
+        
+        async function addEvent(eventData) {
+            if (useFirebase) {
+                const id = await addEventToFirebase(eventData);
+                if (id) {
+                    allEvents.push({ id, ...eventData });
+                    showToast('Event added successfully!', 'success');
+                } else {
+                    showToast('Failed to add event', 'error');
+                    return false;
+                }
+            } else {
+                const newEvent = { id: generateId(), ...eventData };
+                allEvents.push(newEvent);
+                saveLocalEvents(allEvents);
+                showToast('Event added successfully!', 'success');
+            }
+            
+            applyFilters();
+            return true;
+        }
+        
+        async function updateEvent(eventId, eventData) {
+            if (useFirebase) {
+                const success = await updateEventInFirebase(eventId, eventData);
+                if (success) {
+                    const index = allEvents.findIndex(e => e.id === eventId);
+                    if (index !== -1) allEvents[index] = { id: eventId, ...eventData };
+                    showToast('Event updated successfully!', 'success');
+                } else {
+                    showToast('Failed to update event', 'error');
+                    return false;
+                }
+            } else {
+                const index = allEvents.findIndex(e => e.id === eventId);
+                if (index !== -1) {
+                    allEvents[index] = { id: eventId, ...eventData };
+                    saveLocalEvents(allEvents);
+                    showToast('Event updated successfully!', 'success');
+                }
+            }
+            
+            applyFilters();
+            return true;
+        }
+        
+        async function deleteEvent(eventId) {
+            if (useFirebase) {
+                const success = await deleteEventFromFirebase(eventId);
+                if (success) {
+                    allEvents = allEvents.filter(e => e.id !== eventId);
+                    showToast('Event deleted successfully!', 'success');
+                } else {
+                    showToast('Failed to delete event', 'error');
+                    return false;
+                }
+            } else {
+                allEvents = allEvents.filter(e => e.id !== eventId);
+                saveLocalEvents(allEvents);
+                showToast('Event deleted successfully!', 'success');
+            }
+            
+            applyFilters();
+            return true;
+        }
+        
+        async function duplicateEvent(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (!event) return;
+            
+            const { id, ...eventData } = event;
+            eventData.title = eventData.title + ' (Copy)';
+            
+            await addEvent(eventData);
+        }
+        
+        // ============================================
+        // Calendar Functions
+        // ============================================
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth,multiMonthYear'
+                },
+                views: {
+                    multiMonthYear: {
+                        type: 'multiMonth',
+                        duration: { years: 1 }
                     }
                 },
-                eventClassNames: (arg) => arg.event.extendedProps.isHype ? ['hype-event'] : []
-            });
-            calendar.render();
-            updateActiveViewBtn(isMobile ? 'listYear' : 'multiMonthYear');
-
-            DataService.init((events) => {
-                allEvents = events;
-                renderEvents(events);
-                updateStats(events);
-                startCountdown(events);
-            });
-        });
-
-        function renderEvents(events) {
-            calendar.removeAllEvents();
-            let toRender = hypeOnly ? events.filter(e => e.isHype) : events;
-            const searchVal = document.getElementById('globalSearch').value.toLowerCase();
-            
-            toRender.forEach(data => {
-                let color = '#3b82f6';
-                if(data.category === 'game') color = '#8b5cf6';
-                if(data.category === 'movie') color = '#f43f5e';
-                if(data.category === 'sport') color = '#10b981';
-                if(data.category === 'tv') color = '#f59e0b';
-                
-                let classList = [];
-                if(data.isHype) classList.push('hype-event');
-                if(searchVal) {
-                    const match = data.title.toLowerCase().includes(searchVal) || 
-                                  (data.subCategory && data.subCategory.toLowerCase().includes(searchVal)) ||
-                                  data.category.includes(searchVal);
-                    if(!match) classList.push('dimmed');
+                events: [],
+                eventClick: handleEventClick,
+                dateClick: handleDateClick,
+                editable: true,
+                eventDrop: handleEventDrop,
+                eventResize: handleEventResize,
+                height: 'auto',
+                dayMaxEvents: 3,
+                moreLinkClick: 'popover',
+                nowIndicator: true,
+                navLinks: true,
+                businessHours: false,
+                eventDidMount: function(info) {
+                    // Add tooltip
+                    info.el.setAttribute('title', info.event.title);
+                    
+                    // Add priority border
+                    if (info.event.extendedProps.priority) {
+                        info.el.classList.add('priority-' + info.event.extendedProps.priority);
+                    }
                 }
-
-                calendar.addEvent({
-                    id: String(data.id),
-                    title: data.title,
-                    start: data.date,
-                    backgroundColor: color,
-                    borderColor: color,
-                    className: classList,
-                    extendedProps: { 
-                        category: data.category, sub: data.subCategory, 
-                        isHype: data.isHype, img: data.img || null, link: data.link || null 
+            });
+            
+            calendar.render();
+        }
+        
+        function updateCalendar() {
+            if (!calendar) return;
+            
+            calendar.removeAllEvents();
+            
+            const calendarEvents = filteredEvents.map(event => {
+                let backgroundColor = categoryColors[event.category] || '#6b7280';
+                
+                // Use custom color if provided
+                if (event.customColor) {
+                    backgroundColor = event.customColor;
+                }
+                
+                return {
+                    id: event.id,
+                    title: event.title,
+                    start: event.date,
+                    end: event.endDate || null,
+                    backgroundColor: backgroundColor,
+                    borderColor: backgroundColor,
+                    extendedProps: {
+                        category: event.category,
+                        subCategory: event.subCategory,
+                        description: event.description,
+                        url: event.url,
+                        tags: event.tags,
+                        time: event.time,
+                        featured: event.featured,
+                        reminder: event.reminder,
+                        priority: event.priority,
+                        image: event.image,
+                        notes: event.notes,
+                        customColor: event.customColor
+                    }
+                };
+            });
+            
+            calendar.addEventSource(calendarEvents);
+        }
+        
+        function handleEventClick(info) {
+            showEventDetails(info.event);
+        }
+        
+        function handleDateClick(info) {
+            if (currentUser || !useFirebase) {
+                openEventModal(null, info.dateStr);
+            }
+        }
+        
+        async function handleEventDrop(info) {
+            if (!currentUser && useFirebase) {
+                info.revert();
+                showToast('Please login to move events', 'warning');
+                return;
+            }
+            
+            const event = allEvents.find(e => e.id === info.event.id);
+            if (event) {
+                event.date = info.event.startStr;
+                if (useFirebase) {
+                    await updateEventInFirebase(event.id, event);
+                } else {
+                    saveLocalEvents(allEvents);
+                }
+                showToast('Event moved successfully!', 'success');
+            }
+        }
+        
+        async function handleEventResize(info) {
+            if (!currentUser && useFirebase) {
+                info.revert();
+                showToast('Please login to resize events', 'warning');
+                return;
+            }
+            
+            const event = allEvents.find(e => e.id === info.event.id);
+            if (event) {
+                event.endDate = info.event.endStr;
+                if (useFirebase) {
+                    await updateEventInFirebase(event.id, event);
+                } else {
+                    saveLocalEvents(allEvents);
+                }
+                showToast('Event updated successfully!', 'success');
+            }
+        }
+        
+        // ============================================
+        // Timeline View Functions
+        // ============================================
+        function updateTimelineView() {
+            const container = document.getElementById('timeline-content');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Sort events by date
+            const sortedEvents = [...filteredEvents].sort((a, b) => 
+                new Date(a.date) - new Date(b.date)
+            );
+            
+            if (sortedEvents.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-400 py-8">No events to display</div>';
+                return;
+            }
+            
+            container.innerHTML = sortedEvents.map(event => {
+                const eventDate = new Date(event.date);
+                const isPast = eventDate < today;
+                const color = event.customColor || categoryColors[event.category] || '#6b7280';
+                const priorityColor = priorityColors[event.priority || 'medium'];
+                
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: ${color}; border-color: ${color}"></div>
+                        <div class="glass-light rounded-xl p-4 hover:bg-slate-600/50 transition-colors cursor-pointer ${isPast ? 'opacity-60' : ''}" 
+                             data-event-id="${event.id}" onclick="window.viewEventFromTimeline('${event.id}')">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        ${event.image ? `<img src="${event.image}" class="image-thumbnail" alt="">` : ''}
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-lg">${event.title}</div>
+                                            <div class="text-sm text-slate-400">${formatDate(event.date)}${event.time ? ' at ' + event.time : ''}</div>
+                                        </div>
+                                    </div>
+                                    ${event.description ? `<div class="text-sm text-slate-300 mb-2">${event.description}</div>` : ''}
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="event-badge" style="background: ${color}20; color: ${color}">${event.category}</span>
+                                        ${event.subCategory ? `<span class="event-badge bg-slate-600/50">${event.subCategory}</span>` : ''}
+                                        ${event.priority ? `<span class="event-badge" style="background: ${priorityColor}20; color: ${priorityColor}">${event.priority}</span>` : ''}
+                                        ${event.featured ? '<span class="event-badge bg-amber-500/20 text-amber-400"><i class="fas fa-star mr-1"></i>Featured</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Make function globally accessible
+        window.viewEventFromTimeline = function(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (event) {
+                showEventDetails({ 
+                    id: event.id, 
+                    title: event.title, 
+                    startStr: event.date, 
+                    extendedProps: event 
+                });
+            }
+        };
+        
+        // ============================================
+        // View Toggle Functions
+        // ============================================
+        function toggleView() {
+            const calendarContainer = document.getElementById('calendar-container');
+            const timelineView = document.getElementById('timeline-view');
+            const viewBtn = document.getElementById('view-toggle');
+            const viewText = document.getElementById('view-mode-text');
+            
+            if (currentView === 'calendar') {
+                currentView = 'timeline';
+                calendarContainer.classList.add('hidden');
+                timelineView.classList.remove('hidden');
+                viewText.textContent = 'Timeline';
+                viewBtn.querySelector('i').className = 'fas fa-calendar';
+                updateTimelineView();
+            } else {
+                currentView = 'calendar';
+                calendarContainer.classList.remove('hidden');
+                timelineView.classList.add('hidden');
+                viewText.textContent = 'Calendar';
+                viewBtn.querySelector('i').className = 'fas fa-th';
+            }
+        }
+        
+        // ============================================
+        // UI Functions
+        // ============================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icons = {
+                success: 'fa-check-circle text-emerald-400',
+                error: 'fa-exclamation-circle text-rose-400',
+                warning: 'fa-exclamation-triangle text-amber-400',
+                info: 'fa-info-circle text-indigo-400'
+            };
+            
+            toast.className = 'toast glass rounded-xl px-4 py-3 flex items-center gap-3 min-w-[280px]';
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <span class="text-sm">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 7);
+            
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            const upcoming = allEvents.filter(e => new Date(e.date) >= today).length;
+            const thisWeek = allEvents.filter(e => {
+                const d = new Date(e.date);
+                return d >= startOfWeek && d < endOfWeek;
+            }).length;
+            const thisMonth = allEvents.filter(e => {
+                const d = new Date(e.date);
+                return d >= startOfMonth && d <= endOfMonth;
+            }).length;
+            
+            document.getElementById('total-events').textContent = allEvents.length;
+            document.getElementById('upcoming-count').textContent = upcoming;
+            document.getElementById('this-month').textContent = thisMonth;
+            document.getElementById('this-week').textContent = thisWeek;
+        }
+        
+        function updateCategoryCounts() {
+            const categories = ['Video Games', 'Movies', 'Sports', 'Music', 'Tech', 'TV Shows', 'Books', 'Other'];
+            const categoryMap = {
+                'Video Games': 'games',
+                'Movies': 'movies',
+                'Sports': 'sports',
+                'Music': 'music',
+                'Tech': 'tech',
+                'TV Shows': 'tv',
+                'Books': 'books',
+                'Other': 'other'
+            };
+            
+            categories.forEach(cat => {
+                const count = allEvents.filter(e => e.category === cat).length;
+                const el = document.getElementById(`count-${categoryMap[cat]}`);
+                if (el) el.textContent = count;
+            });
+        }
+        
+        function updateUpcomingEvents() {
+            const container = document.getElementById('upcoming-events');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const upcoming = allEvents
+                .filter(e => new Date(e.date) >= today)
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .slice(0, 5);
+            
+            if (upcoming.length === 0) {
+                container.innerHTML = '<div class="text-sm text-slate-500 text-center py-4">No upcoming events</div>';
+                return;
+            }
+            
+            container.innerHTML = upcoming.map(event => {
+                const eventDate = new Date(event.date);
+                const diffDays = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
+                const color = event.customColor || categoryColors[event.category] || '#6b7280';
+                
+                return `
+                    <div class="glass-light rounded-lg p-3 cursor-pointer hover:bg-slate-600/50 transition-colors" data-event-id="${event.id}">
+                        <div class="flex items-start gap-3">
+                            <div class="w-1 h-full rounded-full" style="background: ${color}"></div>
+                            <div class="flex-1 min-w-0">
+                                ${event.image ? `<img src="${event.image}" class="image-thumbnail mb-2" alt="">` : ''}
+                                <div class="font-medium text-sm truncate">${event.title}</div>
+                                <div class="text-xs text-slate-400">${formatDate(event.date)}</div>
+                                <div class="text-xs ${diffDays <= 7 ? 'text-emerald-400' : 'text-slate-500'}">
+                                    ${diffDays === 0 ? 'Today!' : diffDays === 1 ? 'Tomorrow' : `In ${diffDays} days`}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add click handlers
+            container.querySelectorAll('[data-event-id]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const event = allEvents.find(e => e.id === el.dataset.eventId);
+                    if (event) showEventDetails({ id: event.id, title: event.title, startStr: event.date, extendedProps: event });
+                });
+            });
+        }
+        
+        function updateCountdown() {
+            const section = document.getElementById('countdown-section');
+            const today = new Date();
+            
+            const nextEvent = allEvents
+                .filter(e => new Date(e.date) > today)
+                .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+            
+            if (!nextEvent) {
+                section.classList.add('hidden');
+                if (countdownInterval) clearInterval(countdownInterval);
+                return;
+            }
+            
+            section.classList.remove('hidden');
+            document.getElementById('next-event-title').textContent = nextEvent.title;
+            
+            function updateTimer() {
+                const now = new Date();
+                const target = new Date(nextEvent.date);
+                const diff = target - now;
+                
+                if (diff <= 0) {
+                    loadEvents();
+                    return;
+                }
+                
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown-days').textContent = String(days).padStart(2, '0');
+                document.getElementById('countdown-hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('countdown-mins').textContent = String(mins).padStart(2, '0');
+                document.getElementById('countdown-secs').textContent = String(secs).padStart(2, '0');
+            }
+            
+            if (countdownInterval) clearInterval(countdownInterval);
+            updateTimer();
+            countdownInterval = setInterval(updateTimer, 1000);
+        }
+        
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+        
+        function applyFilters() {
+            const checkedCategories = Array.from(document.querySelectorAll('.category-filter:checked'))
+                .map(cb => cb.value);
+            
+            const allChecked = checkedCategories.includes('all');
+            
+            // Apply category filter
+            if (allChecked) {
+                filteredEvents = [...allEvents];
+            } else {
+                filteredEvents = allEvents.filter(e => checkedCategories.includes(e.category));
+            }
+            
+            // Apply priority filter
+            const priorityFilter = document.getElementById('priority-filter').value;
+            if (priorityFilter !== 'all') {
+                filteredEvents = filteredEvents.filter(e => e.priority === priorityFilter);
+            }
+            
+            // Apply date range filter
+            const dateRangeFilter = document.getElementById('date-range-filter').value;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (dateRangeFilter !== 'all') {
+                switch (dateRangeFilter) {
+                    case 'today':
+                        filteredEvents = filteredEvents.filter(e => {
+                            const d = new Date(e.date);
+                            d.setHours(0, 0, 0, 0);
+                            return d.getTime() === today.getTime();
+                        });
+                        break;
+                    case 'week':
+                        const startOfWeek = new Date(today);
+                        startOfWeek.setDate(today.getDate() - today.getDay());
+                        const endOfWeek = new Date(startOfWeek);
+                        endOfWeek.setDate(startOfWeek.getDate() + 7);
+                        filteredEvents = filteredEvents.filter(e => {
+                            const d = new Date(e.date);
+                            return d >= startOfWeek && d < endOfWeek;
+                        });
+                        break;
+                    case 'month':
+                        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                        filteredEvents = filteredEvents.filter(e => {
+                            const d = new Date(e.date);
+                            return d >= startOfMonth && d <= endOfMonth;
+                        });
+                        break;
+                    case 'quarter':
+                        const quarter = Math.floor(today.getMonth() / 3);
+                        const startOfQuarter = new Date(today.getFullYear(), quarter * 3, 1);
+                        const endOfQuarter = new Date(today.getFullYear(), quarter * 3 + 3, 0);
+                        filteredEvents = filteredEvents.filter(e => {
+                            const d = new Date(e.date);
+                            return d >= startOfQuarter && d <= endOfQuarter;
+                        });
+                        break;
+                    case 'year':
+                        const startOfYear = new Date(today.getFullYear(), 0, 1);
+                        const endOfYear = new Date(today.getFullYear(), 11, 31);
+                        filteredEvents = filteredEvents.filter(e => {
+                            const d = new Date(e.date);
+                            return d >= startOfYear && d <= endOfYear;
+                        });
+                        break;
+                    case 'custom':
+                        const startDate = new Date(document.getElementById('filter-start-date').value);
+                        const endDate = new Date(document.getElementById('filter-end-date').value);
+                        if (startDate && endDate) {
+                            filteredEvents = filteredEvents.filter(e => {
+                                const d = new Date(e.date);
+                                return d >= startDate && d <= endDate;
+                            });
+                        }
+                        break;
+                }
+            }
+            
+            updateCalendar();
+            updateStats();
+            updateUpcomingEvents();
+            updateCountdown();
+            if (currentView === 'timeline') {
+                updateTimelineView();
+            }
+        }
+        
+        // ============================================
+        // Modal Functions
+        // ============================================
+        function openAuthModal(isLogin = true) {
+            const modal = document.getElementById('auth-modal');
+            const title = document.getElementById('auth-modal-title');
+            const submitBtn = document.getElementById('auth-submit');
+            const switchText = document.getElementById('auth-switch-text');
+            const switchBtn = document.getElementById('auth-switch-btn');
+            
+            title.textContent = isLogin ? 'Login' : 'Sign Up';
+            submitBtn.textContent = isLogin ? 'Login' : 'Sign Up';
+            switchText.textContent = isLogin ? "Don't have an account?" : 'Already have an account?';
+            switchBtn.textContent = isLogin ? 'Sign Up' : 'Login';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('auth-email').focus();
+        }
+        
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('auth-form').reset();
+            document.getElementById('auth-error').classList.add('hidden');
+        }
+        
+        function openEventModal(event = null, date = null) {
+            const modal = document.getElementById('event-modal');
+            const title = document.getElementById('event-modal-title');
+            const deleteBtn = document.getElementById('delete-event-btn');
+            const duplicateBtn = document.getElementById('duplicate-event-btn');
+            
+            currentEditEvent = event;
+            
+            if (event) {
+                title.textContent = 'Edit Event';
+                deleteBtn.classList.remove('hidden');
+                duplicateBtn.classList.remove('hidden');
+                
+                const eventData = allEvents.find(e => e.id === event.id);
+                if (eventData) {
+                    document.getElementById('event-id').value = eventData.id;
+                    document.getElementById('event-title').value = eventData.title;
+                    document.getElementById('event-date').value = eventData.date;
+                    document.getElementById('event-end-date').value = eventData.endDate || '';
+                    document.getElementById('event-time').value = eventData.time || '';
+                    document.getElementById('event-category').value = eventData.category;
+                    document.getElementById('event-subcategory').value = eventData.subCategory || '';
+                    document.getElementById('event-description').value = eventData.description || '';
+                    document.getElementById('event-url').value = eventData.url || '';
+                    document.getElementById('event-tags').value = eventData.tags || '';
+                    document.getElementById('event-reminder').checked = eventData.reminder || false;
+                    document.getElementById('event-featured').checked = eventData.featured || false;
+                    document.getElementById('event-priority').value = eventData.priority || 'medium';
+                    document.getElementById('event-image').value = eventData.image || '';
+                    document.getElementById('event-notes').value = eventData.notes || '';
+                    document.getElementById('event-color').value = eventData.customColor || '#6b7280';
+                    document.getElementById('event-recurring').checked = eventData.recurring || false;
+                    
+                    // Show image preview if available
+                    if (eventData.image) {
+                        showImagePreview(eventData.image);
+                    }
+                    
+                    // Show recurring options if recurring
+                    if (eventData.recurring) {
+                        document.getElementById('recurring-options').classList.remove('hidden');
+                        document.getElementById('recurring-frequency').value = eventData.recurringFrequency || 'weekly';
+                        document.getElementById('recurring-until').value = eventData.recurringUntil || '';
+                    }
+                }
+            } else {
+                title.textContent = 'Add New Event';
+                deleteBtn.classList.add('hidden');
+                duplicateBtn.classList.add('hidden');
+                document.getElementById('event-form').reset();
+                document.getElementById('event-id').value = '';
+                document.getElementById('event-priority').value = 'medium';
+                document.getElementById('event-color').value = '#6b7280';
+                document.getElementById('image-preview-container').classList.add('hidden');
+                document.getElementById('recurring-options').classList.add('hidden');
+                
+                if (date) {
+                    document.getElementById('event-date').value = date;
+                }
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('event-title').focus();
+        }
+        
+        function closeEventModal() {
+            const modal = document.getElementById('event-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('event-form').reset();
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('recurring-options').classList.add('hidden');
+            currentEditEvent = null;
+        }
+        
+        function showEventDetails(event) {
+            const modal = document.getElementById('event-details-modal');
+            const eventData = allEvents.find(e => e.id === event.id) || event.extendedProps;
+            
+            document.getElementById('event-details-title').textContent = event.title;
+            document.getElementById('event-details-date').querySelector('span').textContent = formatDate(event.startStr || eventData.date);
+            
+            const categoryEl = document.getElementById('event-details-category');
+            categoryEl.textContent = eventData.category || event.extendedProps?.category;
+            categoryEl.style.backgroundColor = eventData.customColor || categoryColors[eventData.category || event.extendedProps?.category] || '#6b7280';
+            
+            // Show priority if available
+            const priorityEl = document.getElementById('event-details-priority');
+            if (eventData.priority) {
+                priorityEl.classList.remove('hidden');
+                priorityEl.textContent = eventData.priority.toUpperCase();
+                priorityEl.style.backgroundColor = priorityColors[eventData.priority] + '20';
+                priorityEl.style.color = priorityColors[eventData.priority];
+            } else {
+                priorityEl.classList.add('hidden');
+            }
+            
+            // Show image if available
+            const imageContainer = document.getElementById('event-details-image-container');
+            const imageEl = document.getElementById('event-details-image');
+            if (eventData.image) {
+                imageContainer.classList.remove('hidden');
+                imageEl.src = eventData.image;
+            } else {
+                imageContainer.classList.add('hidden');
+            }
+            
+            const timeEl = document.getElementById('event-details-time');
+            if (eventData.time) {
+                timeEl.classList.remove('hidden');
+                timeEl.querySelector('span').textContent = eventData.time;
+            } else {
+                timeEl.classList.add('hidden');
+            }
+            
+            const subCatEl = document.getElementById('event-details-subcategory');
+            if (eventData.subCategory) {
+                subCatEl.classList.remove('hidden');
+                subCatEl.querySelector('span').textContent = eventData.subCategory;
+            } else {
+                subCatEl.classList.add('hidden');
+            }
+            
+            const descEl = document.getElementById('event-details-description');
+            if (eventData.description) {
+                descEl.classList.remove('hidden');
+                descEl.textContent = eventData.description;
+            } else {
+                descEl.classList.add('hidden');
+            }
+            
+            // Show notes if available
+            const notesEl = document.getElementById('event-details-notes');
+            if (eventData.notes) {
+                notesEl.classList.remove('hidden');
+                document.getElementById('event-details-notes-text').textContent = eventData.notes;
+            } else {
+                notesEl.classList.add('hidden');
+            }
+            
+            const tagsEl = document.getElementById('event-details-tags');
+            if (eventData.tags) {
+                tagsEl.classList.remove('hidden');
+                tagsEl.innerHTML = eventData.tags.split(',').map(tag => 
+                    `<span class="event-badge bg-slate-600/50">${tag.trim()}</span>`
+                ).join('');
+            } else {
+                tagsEl.classList.add('hidden');
+            }
+            
+            const urlEl = document.getElementById('event-details-url');
+            if (eventData.url) {
+                urlEl.classList.remove('hidden');
+                urlEl.querySelector('a').href = eventData.url;
+            } else {
+                urlEl.classList.add('hidden');
+            }
+            
+            // Countdown for event
+            const countdownEl = document.getElementById('event-details-countdown');
+            const eventDate = new Date(event.startStr || eventData.date);
+            const now = new Date();
+            
+            if (eventDate > now) {
+                countdownEl.classList.remove('hidden');
+                const diff = eventDate - now;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                document.getElementById('event-countdown-display').textContent = 
+                    days > 0 ? `${days} days, ${hours} hours` : `${hours} hours`;
+            } else {
+                countdownEl.classList.add('hidden');
+            }
+            
+            // Store event id for edit button
+            modal.dataset.eventId = event.id;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function closeEventDetails() {
+            const modal = document.getElementById('event-details-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        function showImagePreview(url) {
+            const container = document.getElementById('image-preview-container');
+            const img = document.getElementById('image-preview');
+            
+            img.src = url;
+            img.onload = () => {
+                container.classList.remove('hidden');
+            };
+            img.onerror = () => {
+                container.classList.add('hidden');
+                showToast('Failed to load image', 'error');
+            };
+        }
+        
+        function openTemplatesModal() {
+            const modal = document.getElementById('templates-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function closeTemplatesModal() {
+            const modal = document.getElementById('templates-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        function applyTemplate(templateType) {
+            const templates = {
+                game: {
+                    category: 'Video Games',
+                    priority: 'high',
+                    description: 'Highly anticipated game release'
+                },
+                movie: {
+                    category: 'Movies',
+                    priority: 'medium',
+                    description: 'Theater premiere'
+                },
+                concert: {
+                    category: 'Music',
+                    subCategory: 'Concert',
+                    priority: 'medium',
+                    description: 'Live performance'
+                },
+                tech: {
+                    category: 'Tech',
+                    subCategory: 'Product Launch',
+                    priority: 'high',
+                    description: 'New product announcement'
+                },
+                tv: {
+                    category: 'TV Shows',
+                    priority: 'medium',
+                    description: 'Season premiere or finale'
+                },
+                book: {
+                    category: 'Books',
+                    priority: 'low',
+                    description: 'Book publication'
+                }
+            };
+            
+            const template = templates[templateType];
+            if (template) {
+                closeTemplatesModal();
+                openEventModal();
+                
+                // Apply template data
+                if (template.category) document.getElementById('event-category').value = template.category;
+                if (template.subCategory) document.getElementById('event-subcategory').value = template.subCategory;
+                if (template.priority) document.getElementById('event-priority').value = template.priority;
+                if (template.description) document.getElementById('event-description').value = template.description;
+            }
+        }
+        
+        function openStatsModal() {
+            const modal = document.getElementById('stats-modal');
+            
+            // Calculate statistics
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const pastEvents = allEvents.filter(e => new Date(e.date) < today).length;
+            const futureEvents = allEvents.filter(e => new Date(e.date) >= today).length;
+            
+            document.getElementById('stats-total').textContent = allEvents.length;
+            document.getElementById('stats-past').textContent = pastEvents;
+            document.getElementById('stats-future').textContent = futureEvents;
+            
+            // Events by category
+            const categoryStats = document.getElementById('stats-by-category');
+            const categories = ['Video Games', 'Movies', 'Sports', 'Music', 'Tech', 'TV Shows', 'Books', 'Other'];
+            
+            categoryStats.innerHTML = categories.map(cat => {
+                const count = allEvents.filter(e => e.category === cat).length;
+                const percentage = allEvents.length > 0 ? (count / allEvents.length * 100).toFixed(1) : 0;
+                const color = categoryColors[cat];
+                
+                return `
+                    <div class="glass-light rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full" style="background: ${color}"></div>
+                                <span class="text-sm font-medium">${cat}</span>
+                            </div>
+                            <span class="text-sm text-slate-400">${count} (${percentage}%)</span>
+                        </div>
+                        <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full" style="width: ${percentage}%; background: ${color}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Events by priority
+            const priorityStats = document.getElementById('stats-by-priority');
+            const priorities = ['critical', 'high', 'medium', 'low'];
+            
+            priorityStats.innerHTML = priorities.map(priority => {
+                const count = allEvents.filter(e => e.priority === priority).length;
+                const percentage = allEvents.length > 0 ? (count / allEvents.length * 100).toFixed(1) : 0;
+                const color = priorityColors[priority];
+                
+                return `
+                    <div class="glass-light rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full" style="background: ${color}"></div>
+                                <span class="text-sm font-medium capitalize">${priority}</span>
+                            </div>
+                            <span class="text-sm text-slate-400">${count} (${percentage}%)</span>
+                        </div>
+                        <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full" style="width: ${percentage}%; background: ${color}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Events by month
+            const monthStats = document.getElementById('stats-by-month');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            monthStats.innerHTML = months.map((month, index) => {
+                const count = allEvents.filter(e => new Date(e.date).getMonth() === index).length;
+                
+                return `
+                    <div class="glass-light rounded-lg p-3 text-center">
+                        <div class="text-lg font-bold text-indigo-400">${count}</div>
+                        <div class="text-xs text-slate-400">${month}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function closeStatsModal() {
+            const modal = document.getElementById('stats-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        // ============================================
+        // Auth Functions
+        // ============================================
+        async function handleAuth(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const isLogin = document.getElementById('auth-modal-title').textContent === 'Login';
+            const errorEl = document.getElementById('auth-error');
+            
+            if (!useFirebase) {
+                // Local mode auth simulation
+                currentUser = { email };
+                updateAuthUI(true);
+                closeAuthModal();
+                showToast(`Welcome, ${email}!`, 'success');
+                return;
+            }
+            
+            try {
+                const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = window.firebaseAuth;
+                
+                if (isLogin) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                }
+                
+                closeAuthModal();
+                showToast(isLogin ? 'Logged in successfully!' : 'Account created successfully!', 'success');
+            } catch (error) {
+                errorEl.textContent = error.message.replace('Firebase: ', '');
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        async function handleLogout() {
+            if (useFirebase) {
+                try {
+                    const { signOut } = window.firebaseAuth;
+                    await signOut(auth);
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            } else {
+                currentUser = null;
+                updateAuthUI(false);
+            }
+            showToast('Logged out successfully!', 'info');
+        }
+        
+        function updateAuthUI(isLoggedIn) {
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            const userEmail = document.getElementById('user-email');
+            
+            if (isLoggedIn) {
+                authButtons.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                userMenu.classList.add('flex');
+                if (currentUser?.email) {
+                    userEmail.textContent = currentUser.email.split('@')[0];
+                }
+            } else {
+                authButtons.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                userMenu.classList.remove('flex');
+            }
+        }
+        
+        // ============================================
+        // Export/Import Functions
+        // ============================================
+        function exportToICS() {
+            let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Global Release Calendar//EN\n';
+            
+            allEvents.forEach(event => {
+                const date = event.date.replace(/-/g, '');
+                ics += `BEGIN:VEVENT\n`;
+                ics += `DTSTART;VALUE=DATE:${date}\n`;
+                ics += `SUMMARY:${event.title}\n`;
+                ics += `DESCRIPTION:${event.description || ''}\n`;
+                ics += `CATEGORIES:${event.category}\n`;
+                if (event.url) ics += `URL:${event.url}\n`;
+                ics += `END:VEVENT\n`;
+            });
+            
+            ics += 'END:VCALENDAR';
+            
+            const blob = new Blob([ics], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'global-release-calendar.ics';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Calendar exported successfully!', 'success');
+        }
+        
+        function openImportModal() {
+            const modal = document.getElementById('import-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function closeImportModal() {
+            const modal = document.getElementById('import-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        async function handleImport(file) {
+            try {
+                const text = await file.text();
+                const events = JSON.parse(text);
+                
+                if (!Array.isArray(events)) {
+                    throw new Error('Invalid format: expected array');
+                }
+                
+                let imported = 0;
+                for (const event of events) {
+                    if (event.title && event.date) {
+                        await addEvent({
+                            title: event.title,
+                            date: event.date,
+                            endDate: event.endDate || null,
+                            category: event.category || 'Other',
+                            subCategory: event.subCategory || '',
+                            description: event.description || '',
+                            url: event.url || '',
+                            tags: event.tags || '',
+                            time: event.time || '',
+                            featured: event.featured || false,
+                            reminder: event.reminder || false,
+                            priority: event.priority || 'medium',
+                            image: event.image || '',
+                            notes: event.notes || '',
+                            customColor: event.customColor || '',
+                            recurring: event.recurring || false,
+                            recurringFrequency: event.recurringFrequency || '',
+                            recurringUntil: event.recurringUntil || ''
+                        });
+                        imported++;
+                    }
+                }
+                
+                closeImportModal();
+                showToast(`Imported ${imported} events successfully!`, 'success');
+            } catch (error) {
+                showToast('Failed to import: ' + error.message, 'error');
+            }
+        }
+        
+        function shareCalendar() {
+            const data = JSON.stringify(allEvents, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'global-release-calendar.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Calendar data exported for sharing!', 'success');
+        }
+        
+        function shareEvent() {
+            const modal = document.getElementById('event-details-modal');
+            const eventId = modal.dataset.eventId;
+            const event = allEvents.find(e => e.id === eventId);
+            
+            if (event) {
+                const text = `${event.title} - ${formatDate(event.date)}${event.description ? '\n' + event.description : ''}`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: event.title,
+                        text: text
+                    });
+                } else {
+                    navigator.clipboard.writeText(text);
+                    showToast('Event details copied to clipboard!', 'success');
+                }
+            }
+        }
+        
+        // ============================================
+        // Search Functions
+        // ============================================
+        function handleSearch(query) {
+            const panel = document.getElementById('search-panel');
+            const results = document.getElementById('search-results');
+            
+            if (!query.trim()) {
+                panel.classList.add('hidden');
+                return;
+            }
+            
+            panel.classList.remove('hidden');
+            
+            const matches = allEvents.filter(e => 
+                e.title.toLowerCase().includes(query.toLowerCase()) ||
+                e.category.toLowerCase().includes(query.toLowerCase()) ||
+                (e.subCategory && e.subCategory.toLowerCase().includes(query.toLowerCase())) ||
+                (e.description && e.description.toLowerCase().includes(query.toLowerCase())) ||
+                (e.tags && e.tags.toLowerCase().includes(query.toLowerCase()))
+            );
+            
+            if (matches.length === 0) {
+                results.innerHTML = '<div class="text-center text-slate-400 py-4 text-sm">No events found</div>';
+                return;
+            }
+            
+            results.innerHTML = matches.slice(0, 10).map(event => {
+                const color = event.customColor || categoryColors[event.category] || '#6b7280';
+                return `
+                    <div class="glass-light rounded-lg p-3 cursor-pointer hover:bg-slate-600/50 transition-colors search-result" data-event-id="${event.id}">
+                        <div class="flex items-center gap-3">
+                            ${event.image ? `<img src="${event.image}" class="image-thumbnail" alt="">` : ''}
+                            <div class="w-2 h-2 rounded-full" style="background: ${color}"></div>
+                            <div class="flex-1">
+                                <div class="font-medium text-sm">${event.title}</div>
+                                <div class="text-xs text-slate-400">${formatDate(event.date)} • ${event.category}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            results.querySelectorAll('.search-result').forEach(el => {
+                el.addEventListener('click', () => {
+                    const event = allEvents.find(e => e.id === el.dataset.eventId);
+                    if (event) {
+                        showEventDetails({ id: event.id, title: event.title, startStr: event.date, extendedProps: event });
+                        panel.classList.add('hidden');
+                        document.getElementById('search-input').value = '';
                     }
                 });
             });
         }
-
-        // --- GLOBAL FUNCTIONS EXPORT ---
-        window.changeView = (viewName) => { calendar.changeView(viewName); updateActiveViewBtn(viewName); }
-        function updateActiveViewBtn(viewName) {
-            ['btnYear','btnMonth','btnList'].forEach(id => document.getElementById(id).classList.remove('bg-white/10', 'text-white'));
-            if(viewName.includes('Year')) document.getElementById('btnYear').classList.add('bg-white/10', 'text-white');
-            else if(viewName.includes('Month') && !viewName.includes('List')) document.getElementById('btnMonth').classList.add('bg-white/10', 'text-white');
-            else document.getElementById('btnList').classList.add('bg-white/10', 'text-white');
-        }
-
-        document.getElementById('globalSearch').addEventListener('input', () => renderEvents(allEvents));
-        window.clearSearch = () => { document.getElementById('globalSearch').value = ''; renderEvents(allEvents); document.getElementById('clearSearchBtn').classList.add('hidden'); }
-        document.getElementById('globalSearch').addEventListener('input', (e) => {
-            document.getElementById('clearSearchBtn').style.display = e.target.value ? 'block' : 'none';
-        });
-
-        function handleEventClick(info) {
-            info.jsEvent.preventDefault();
-            if(selectionMode) {
-                const id = String(info.event.id);
-                if(selectedEventIds.has(id)) { selectedEventIds.delete(id); info.el.classList.remove('selected-event'); } 
-                else { selectedEventIds.add(id); info.el.classList.add('selected-event'); }
-                updateBulkDeleteUI();
-            } else { showEventDetails(info.event); }
-        }
-
-        window.openEventModal = (eventObj = null) => {
-            const form = document.getElementById('addEventForm');
-            if (eventObj) {
-                const props = eventObj.extendedProps;
-                document.getElementById('evId').value = eventObj.id;
-                document.getElementById('evTitle').value = eventObj.title;
-                document.getElementById('evDate').value = eventObj.startStr;
-                document.getElementById('evCategory').value = props.category;
-                document.getElementById('evSub').value = props.sub || '';
-                document.getElementById('evImage').value = props.img || '';
-                document.getElementById('evLink').value = props.link || '';
-                document.getElementById('evHype').checked = props.isHype;
-                document.getElementById('modalTitle').innerText = "EDIT RELEASE";
-                document.getElementById('submitBtn').innerText = "UPDATE EVENT";
-            } else {
-                form.reset();
-                document.getElementById('evId').value = '';
-                document.getElementById('modalTitle').innerText = "NEW RELEASE";
-                document.getElementById('submitBtn').innerText = "ADD TO CALENDAR";
-            }
-            window.openModal('eventModal');
-        };
-
-        function showEventDetails(event) {
-            const props = event.extendedProps;
-            document.getElementById('detTitle').innerText = event.title;
-            document.getElementById('detSub').innerText = props.sub || props.category;
-            document.getElementById('detDate').innerText = event.start.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById('detBadge').style.display = props.isHype ? 'inline-block' : 'none';
-
-            if (props.img) {
-                document.getElementById('detImageContainer').style.backgroundImage = `url('${props.img}')`;
-                document.getElementById('detImageContainer').classList.remove('hidden');
-                document.getElementById('detColor').classList.add('hidden');
-                document.getElementById('detCloseNoImg').classList.add('hidden');
-            } else {
-                document.getElementById('detImageContainer').classList.add('hidden');
-                document.getElementById('detColor').classList.remove('hidden');
-                document.getElementById('detCloseNoImg').classList.remove('hidden');
-                document.getElementById('detColor').style.backgroundColor = event.backgroundColor;
-                let icon = 'fa-star';
-                if(props.category === 'game') icon = 'fa-gamepad';
-                if(props.category === 'movie') icon = 'fa-film';
-                if(props.category === 'tv') icon = 'fa-tv';
-                if(props.category === 'sport') icon = 'fa-trophy';
-                document.getElementById('detColor').innerHTML = `<i class="fa-solid ${icon} text-white"></i>`;
-            }
-
-            document.getElementById('detLinkBtn').href = props.link || '#';
-            document.getElementById('detLinkBtn').classList.toggle('hidden', !props.link);
-            document.getElementById('editEventBtn').onclick = () => { window.closeModal('detailsModal'); window.openEventModal(event); };
-            
-            const delBtn = document.getElementById('deleteEventBtn');
-            const newDelBtn = delBtn.cloneNode(true);
-            delBtn.parentNode.replaceChild(newDelBtn, delBtn);
-            newDelBtn.addEventListener('click', () => {
-                if(confirm("Delete this event?")) { DataService.delete(event.id); window.closeModal('detailsModal'); }
-            });
-            window.openModal('detailsModal');
-        }
-
-        document.getElementById('addEventForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                id: document.getElementById('evId').value || null,
-                title: document.getElementById('evTitle').value,
-                date: document.getElementById('evDate').value,
-                category: document.getElementById('evCategory').value,
-                subCategory: document.getElementById('evSub').value,
-                isHype: document.getElementById('evHype').checked,
-                img: document.getElementById('evImage').value,
-                link: document.getElementById('evLink').value
-            };
-            await DataService.save(data);
-            window.closeModal('eventModal');
-            if(data.isHype) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-        });
-
-        // --- STATS, UTILS & AUTH (Exported to Window) ---
-        window.filterCat = (cat) => { 
-            cat === 'all' ? renderEvents(allEvents) : renderEvents(allEvents.filter(e => e.category === cat));
-            if(isMobile) window.toggleMobileSidebar();
-        }
-        window.toggleHypeOnly = () => {
-            hypeOnly = !hypeOnly;
-            const btn = document.getElementById('hypeFilterBtn');
-            if(hypeOnly) btn.classList.add('bg-orange-500/20', 'border-orange-500', 'text-orange-400');
-            else btn.classList.remove('bg-orange-500/20', 'border-orange-500', 'text-orange-400');
-            renderEvents(allEvents);
-        }
-        window.toggleMobileSidebar = () => {
-            document.getElementById('mainSidebar').classList.toggle('-translate-x-full');
-            document.getElementById('sidebarOverlay').classList.toggle('hidden');
-        }
-        window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); void document.getElementById(id).offsetWidth; document.getElementById(id).querySelector('.glass-panel').classList.remove('translate-y-full','opacity-0'); }
-        window.closeModal = (id) => { document.getElementById(id).querySelector('.glass-panel').classList.add('translate-y-full','opacity-0'); setTimeout(()=>document.getElementById(id).classList.add('hidden'),300); }
-        window.toggleSelectionMode = () => {
-            selectionMode = !selectionMode;
-            const btn = document.getElementById('toggleSelectionBtn');
-            const calDiv = document.getElementById('calendar');
-            if(selectionMode) { btn.innerText = "DONE MANAGING"; btn.classList.add('bg-blue-600', 'text-white', 'border-transparent'); calDiv.classList.add('selection-mode'); showToast("Select events to manage", "info"); }
-            else { btn.innerText = "MANAGE EVENTS"; btn.classList.remove('bg-blue-600', 'text-white', 'border-transparent'); calDiv.classList.remove('selection-mode'); selectedEventIds.clear(); document.querySelectorAll('.selected-event').forEach(el => el.classList.remove('selected-event')); updateBulkDeleteUI(); }
-        }
-        function updateBulkDeleteUI() { const fab = document.getElementById('bulkDeleteFab'); if(selectedEventIds.size > 0) { fab.classList.remove('translate-y-32'); document.getElementById('bulkDeleteCount').innerText = selectedEventIds.size; } else { fab.classList.add('translate-y-32'); } }
-        window.deleteSelectedEvents = async () => { if(confirm(`Delete ${selectedEventIds.size} events?`)) { await DataService.deleteMultiple(selectedEventIds); window.toggleSelectionMode(); } }
-        window.exportData = () => { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allEvents,null,2)); const node = document.createElement('a'); node.setAttribute("href", dataStr); node.setAttribute("download", "GlobalHub_Backup.json"); document.body.appendChild(node); node.click(); node.remove(); }
         
-        function startCountdown(events) {
-            const widget = document.getElementById('countdownWidget');
-            const now = new Date();
-            const upcoming = events.map(e => ({...e, dateObj: new Date(e.date + 'T00:00:00')})).filter(e => e.dateObj >= now).sort((a,b) => a.dateObj - b.dateObj)[0];
-            if(!upcoming) { widget.classList.add('hidden'); return; }
-            widget.classList.remove('hidden');
-            document.getElementById('nextEventTitle').innerText = upcoming.title;
-            document.getElementById('nextEventDate').innerText = upcoming.dateObj.toLocaleDateString();
-            if(countdownInterval) clearInterval(countdownInterval);
-            countdownInterval = setInterval(() => {
-                const diff = upcoming.dateObj - new Date();
-                if(diff <= 0) { clearInterval(countdownInterval); startCountdown(events); return; }
-                document.getElementById('cd-d').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-                document.getElementById('cd-h').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                document.getElementById('cd-m').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            }, 1000);
+        // ============================================
+        // Event Listeners
+        // ============================================
+        function initEventListeners() {
+            // Auth buttons
+            document.getElementById('login-btn').addEventListener('click', () => openAuthModal(true));
+            document.getElementById('signup-btn').addEventListener('click', () => openAuthModal(false));
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            document.getElementById('close-auth-modal').addEventListener('click', closeAuthModal);
+            document.getElementById('auth-form').addEventListener('submit', handleAuth);
+            document.getElementById('auth-switch-btn').addEventListener('click', () => {
+                const isCurrentlyLogin = document.getElementById('auth-modal-title').textContent === 'Login';
+                openAuthModal(!isCurrentlyLogin);
+            });
+            
+            // Event modal
+            document.getElementById('add-event-btn').addEventListener('click', () => openEventModal());
+            document.getElementById('close-event-modal').addEventListener('click', closeEventModal);
+            document.getElementById('event-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const eventData = {
+                    title: document.getElementById('event-title').value,
+                    date: document.getElementById('event-date').value,
+                    endDate: document.getElementById('event-end-date').value || null,
+                    time: document.getElementById('event-time').value || null,
+                    category: document.getElementById('event-category').value,
+                    subCategory: document.getElementById('event-subcategory').value || null,
+                    description: document.getElementById('event-description').value || null,
+                    url: document.getElementById('event-url').value || null,
+                    tags: document.getElementById('event-tags').value || null,
+                    reminder: document.getElementById('event-reminder').checked,
+                    featured: document.getElementById('event-featured').checked,
+                    priority: document.getElementById('event-priority').value,
+                    image: document.getElementById('event-image').value || null,
+                    notes: document.getElementById('event-notes').value || null,
+                    customColor: document.getElementById('event-color').value,
+                    recurring: document.getElementById('event-recurring').checked,
+                    recurringFrequency: document.getElementById('event-recurring').checked ? 
+                        document.getElementById('recurring-frequency').value : null,
+                    recurringUntil: document.getElementById('event-recurring').checked ? 
+                        document.getElementById('recurring-until').value : null
+                };
+                
+                const eventId = document.getElementById('event-id').value;
+                
+                if (eventId) {
+                    await updateEvent(eventId, eventData);
+                } else {
+                    await addEvent(eventData);
+                }
+                
+                closeEventModal();
+            });
+            
+            document.getElementById('delete-event-btn').addEventListener('click', async () => {
+                const eventId = document.getElementById('event-id').value;
+                if (eventId && confirm('Are you sure you want to delete this event?')) {
+                    await deleteEvent(eventId);
+                    closeEventModal();
+                }
+            });
+            
+            document.getElementById('duplicate-event-btn').addEventListener('click', async () => {
+                const eventId = document.getElementById('event-id').value;
+                if (eventId) {
+                    await duplicateEvent(eventId);
+                    closeEventModal();
+                }
+            });
+            
+            // Image preview
+            document.getElementById('preview-image-btn').addEventListener('click', () => {
+                const url = document.getElementById('event-image').value;
+                if (url) {
+                    showImagePreview(url);
+                } else {
+                    showToast('Please enter an image URL', 'warning');
+                }
+            });
+            
+            // Recurring checkbox
+            document.getElementById('event-recurring').addEventListener('change', (e) => {
+                const options = document.getElementById('recurring-options');
+                if (e.target.checked) {
+                    options.classList.remove('hidden');
+                } else {
+                    options.classList.add('hidden');
+                }
+            });
+            
+            // Event details modal
+            document.getElementById('close-event-details').addEventListener('click', closeEventDetails);
+            document.getElementById('edit-event-details-btn').addEventListener('click', () => {
+                const eventId = document.getElementById('event-details-modal').dataset.eventId;
+                const event = allEvents.find(e => e.id === eventId);
+                if (event) {
+                    closeEventDetails();
+                    openEventModal({ id: event.id });
+                }
+            });
+            document.getElementById('share-event-btn').addEventListener('click', shareEvent);
+            
+            // Category filters
+            document.querySelectorAll('.category-filter').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    if (e.target.value === 'all') {
+                        document.querySelectorAll('.category-filter').forEach(c => {
+                            c.checked = e.target.checked;
+                        });
+                    } else {
+                        const allCb = document.querySelector('.category-filter[value="all"]');
+                        const others = document.querySelectorAll('.category-filter:not([value="all"])');
+                        allCb.checked = Array.from(others).every(c => c.checked);
+                    }
+                    applyFilters();
+                });
+            });
+            
+            // Advanced filters
+            document.getElementById('priority-filter').addEventListener('change', applyFilters);
+            document.getElementById('date-range-filter').addEventListener('change', (e) => {
+                const customRange = document.getElementById('custom-date-range');
+                if (e.target.value === 'custom') {
+                    customRange.classList.remove('hidden');
+                } else {
+                    customRange.classList.add('hidden');
+                }
+                applyFilters();
+            });
+            document.getElementById('filter-start-date').addEventListener('change', applyFilters);
+            document.getElementById('filter-end-date').addEventListener('change', applyFilters);
+            
+            // Search
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+            document.getElementById('close-search').addEventListener('click', () => {
+                document.getElementById('search-panel').classList.add('hidden');
+                searchInput.value = '';
+            });
+            
+            // View toggle
+            document.getElementById('view-toggle').addEventListener('click', toggleView);
+            
+            // Sidebar toggle
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            document.getElementById('sidebar-toggle').addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            });
+            overlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+            
+            // Quick buttons
+            document.getElementById('quick-template-btn').addEventListener('click', openTemplatesModal);
+            document.getElementById('quick-filter-btn').addEventListener('click', () => {
+                document.querySelector('.space-y-3:has(#priority-filter)').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Templates
+            document.getElementById('close-templates-modal').addEventListener('click', closeTemplatesModal);
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const template = e.currentTarget.dataset.template;
+                    applyTemplate(template);
+                });
+            });
+            
+            // Statistics
+            document.getElementById('stats-btn').addEventListener('click', openStatsModal);
+            document.getElementById('close-stats-modal').addEventListener('click', closeStatsModal);
+            
+            // Export/Import
+            document.getElementById('export-btn').addEventListener('click', exportToICS);
+            document.getElementById('import-btn').addEventListener('click', openImportModal);
+            document.getElementById('close-import-modal').addEventListener('click', closeImportModal);
+            document.getElementById('share-btn').addEventListener('click', shareCalendar);
+            
+            const dropZone = document.getElementById('drop-zone');
+            const importFile = document.getElementById('import-file');
+            
+            dropZone.addEventListener('click', () => importFile.click());
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-indigo-500');
+            });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-indigo-500');
+            });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-indigo-500');
+                if (e.dataTransfer.files.length) {
+                    handleImport(e.dataTransfer.files[0]);
+                }
+            });
+            importFile.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleImport(e.target.files[0]);
+                }
+            });
+            
+            // Notifications
+            document.getElementById('notifications-btn').addEventListener('click', () => {
+                const panel = document.getElementById('notifications-panel');
+                panel.classList.toggle('hidden');
+            });
+            document.getElementById('clear-notifications').addEventListener('click', () => {
+                document.getElementById('notifications-list').innerHTML = 
+                    '<div class="text-center text-slate-400 py-4 text-sm">No notifications</div>';
+                document.getElementById('notification-badge').classList.add('hidden');
+            });
+            
+            // Storage mode toggle
+            document.getElementById('storage-mode-btn').addEventListener('click', () => {
+                if (!isFirebaseConfigured) {
+                    showToast('Firebase not configured. Add your config to enable cloud storage.', 'info');
+                    return;
+                }
+                useFirebase = !useFirebase;
+                document.getElementById('storage-mode-text').textContent = useFirebase ? 'Cloud' : 'Local';
+                loadEvents();
+                showToast(`Switched to ${useFirebase ? 'Firebase Cloud' : 'Local'} storage`, 'info');
+            });
+            
+            // Update storage mode text
+            document.getElementById('storage-mode-text').textContent = useFirebase ? 'Cloud' : 'Local';
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+K - Search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                // Ctrl+N - New event
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    openEventModal();
+                }
+                // T - Today
+                if (e.key === 't' && !e.target.matches('input, textarea')) {
+                    calendar.today();
+                }
+                // M - Month view
+                if (e.key === 'm' && !e.target.matches('input, textarea')) {
+                    calendar.changeView('dayGridMonth');
+                }
+                // W - Week view
+                if (e.key === 'w' && !e.target.matches('input, textarea')) {
+                    calendar.changeView('timeGridWeek');
+                }
+                // Y - Year view
+                if (e.key === 'y' && !e.target.matches('input, textarea')) {
+                    calendar.changeView('multiMonthYear');
+                }
+                // Escape - Close modals
+                if (e.key === 'Escape') {
+                    closeAuthModal();
+                    closeEventModal();
+                    closeEventDetails();
+                    closeImportModal();
+                    closeTemplatesModal();
+                    closeStatsModal();
+                    document.getElementById('search-panel').classList.add('hidden');
+                    document.getElementById('notifications-panel').classList.add('hidden');
+                }
+            });
+            
+            // Click outside to close panels
+            document.addEventListener('click', (e) => {
+                const searchPanel = document.getElementById('search-panel');
+                const notifPanel = document.getElementById('notifications-panel');
+                
+                if (!searchPanel.contains(e.target) && !searchInput.contains(e.target)) {
+                    searchPanel.classList.add('hidden');
+                }
+                
+                if (!notifPanel.contains(e.target) && !document.getElementById('notifications-btn').contains(e.target)) {
+                    notifPanel.classList.add('hidden');
+                }
+            });
         }
-        window.zoomToNextEvent = () => {
-             const title = document.getElementById('nextEventTitle').innerText;
-             const event = calendar.getEvents().find(e => e.title === title);
-             if(event) { calendar.gotoDate(event.start); showToast("Zoomed to " + title, "info"); }
-        };
-        function updateStats(events) {
-            const counts = { game:0, movie:0, tv:0, sport:0 };
-            events.forEach(e => { if(counts[e.category] !== undefined) counts[e.category]++ });
-            const total = events.length;
-            Object.keys(counts).forEach(cat => { document.getElementById(`count-${cat}`).innerText = counts[cat]; const pct = total === 0 ? 0 : (counts[cat] / total) * 100; document.getElementById(`bar-${cat}`).style.width = `${pct}%`; });
+        
+        // ============================================
+        // Firebase Auth State Observer
+        // ============================================
+        function initAuthObserver() {
+            if (!useFirebase || !auth) return;
+            
+            const { onAuthStateChanged } = window.firebaseAuth;
+            
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                updateAuthUI(!!user);
+            });
         }
-        function updateAuthUI(user) {
-            const ab = document.getElementById('authButtons'); const sa = document.getElementById('sidebarAction');
-            if(user) { ab.innerHTML = `<button onclick="${isLocalMode ? 'location.reload()' : 'window.signOut(auth)'}" class="glass-button text-[9px] font-bold text-red-400 px-3 py-1.5 rounded">LOGOUT</button>`; if(sa) sa.classList.remove('opacity-50', 'pointer-events-none'); }
-            else { ab.innerHTML = `<button onclick="window.openModal('loginModal')" class="glass-button text-[9px] font-bold text-white px-3 py-1.5 rounded bg-blue-600/20 border-blue-500/50">LOGIN</button>`; if(sa) sa.classList.add('opacity-50', 'pointer-events-none'); }
+        
+        // ============================================
+        // Initialize Application
+        // ============================================
+        async function init() {
+            // Add initial class for mobile sidebar
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full', 'lg:translate-x-0');
+            
+            initCalendar();
+            initEventListeners();
+            initAuthObserver();
+            await loadEvents();
+            
+            // Check for upcoming events and add notifications
+            checkUpcomingNotifications();
+            
+            console.log('Global Release Calendar initialized');
+            console.log(`Storage mode: ${useFirebase ? 'Firebase' : 'Local Storage'}`);
         }
-        if(!isLocalMode) { window.signOut = signOut; onAuthStateChanged(auth, updateAuthUI); document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value).then(() => window.closeModal('loginModal')).catch(e => showToast(e.message, 'error')); }); }
-
-        function showToast(msg, type='info') {
-            const t = document.createElement('div');
-            const colors = type==='success'?'bg-green-500':type==='error'?'bg-red-500':'bg-blue-600';
-            const icon = type==='success'?'fa-check':type==='error'?'fa-triangle-exclamation':'fa-info-circle';
-            t.className = `${colors} text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 text-sm font-bold animate-slide-up pointer-events-auto border border-white/10`;
-            t.innerHTML = `<i class="fa-solid ${icon}"></i> ${msg}`; document.getElementById('toastContainer').appendChild(t); setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+        
+        function checkUpcomingNotifications() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const upcomingSoon = allEvents.filter(e => {
+                const eventDate = new Date(e.date);
+                eventDate.setHours(0, 0, 0, 0);
+                return eventDate.getTime() === today.getTime() || eventDate.getTime() === tomorrow.getTime();
+            });
+            
+            if (upcomingSoon.length > 0) {
+                const badge = document.getElementById('notification-badge');
+                badge.textContent = upcomingSoon.length;
+                badge.classList.remove('hidden');
+                
+                const notifList = document.getElementById('notifications-list');
+                notifList.innerHTML = upcomingSoon.map(event => {
+                    const eventDate = new Date(event.date);
+                    eventDate.setHours(0, 0, 0, 0);
+                    const isToday = eventDate.getTime() === today.getTime();
+                    
+                    return `
+                        <div class="p-3 hover:bg-slate-700/30 rounded-lg cursor-pointer">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                                    <i class="fas fa-bell text-indigo-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium">${event.title}</div>
+                                    <div class="text-xs text-slate-400">${isToday ? 'Today!' : 'Tomorrow'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
+        
+        // Start the application
+        init();
     </script>
 </body>
 </html>
